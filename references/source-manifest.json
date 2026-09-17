@@ -18,7 +18,8 @@
     "LCMs use the same timing protocol as DAPHNE. The timing-endpoint control/recovery requirements also apply over each LCM GbE link, through its own service and OPC UA adapter, with published acknowledgement, authorized SC recovery and LCM readiness.",
     "PoF interacts with SC and DPS only. It has no DAQ client, availability subscription or other DAQ interface.",
     "The summary explicitly includes Detector Protection System interfaces and its protection infrastructure and detector protection role.",
-    "Use EDMS ID 3309688, matching the draft, as instructed by the author."
+    "Use EDMS ID 3309688, matching the draft, as instructed by the author.",
+    "SC assesses and publishes detector status. DAQ shall check that status and complete a handshake with Operations before data taking; DAQ configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS."
   ],
   "files": [
     {

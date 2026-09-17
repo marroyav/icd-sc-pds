@@ -8,7 +8,7 @@ The document covers control, configuration and monitoring for DAPHNE, the Light 
 
 ## Document structure
 
-1. **Responsibilities:** PDS provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions; SC supplies control/monitoring infrastructure and access arbitration; DPS supplies protection infrastructure and detector protection; DAQ uses the detector.
+1. **Responsibilities:** PDS provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions. SC supplies control/monitoring infrastructure and access arbitration, and assesses and publishes detector status. DPS supplies protection infrastructure and detector protection. DAQ checks SC's published status and completes a handshake with Operations before taking data, configures and collects detector data, and provides calibration datasets agreed in advance with PDS.
 2. **Physical interface:** separate DAPHNE, Light Calibration Module and PoF subsections.
 3. **Protocols and services:** separate DAPHNE, Light Calibration Module and PoF subsections, each with its own service-location table and protocol description.
 4. **Interface release and verification.**
