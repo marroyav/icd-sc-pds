@@ -12,7 +12,7 @@
     "Only the protocol architecture diagram is retained; no detailed variable inventory or optical transport/readout specification. The timing section identifies the split GbE/DTS configuration and monitoring paths.",
     "Use DUNE-DAQ/daphne-os for daphne-server, Protobuf schemas, endpoint recovery documentation and runtime services.",
     "Include the Light Calibration Module and PDS PoF laser boxes in scope, physical/service placement and protocol requirements.",
-    "PDS provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions. SC provides control/monitoring infrastructure and arbitrates access to detector controls and monitoring data. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector.",
+    "PDS provides photon detector and light calibration hardware, firmware, native services for the warm electronics, detector specifications and detector operating restrictions. SC provides control/monitoring infrastructure and arbitrates access to detector controls and monitoring data. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector.",
     "Section 2 is Physical interface; Section 3 is Protocols and services. Each contains separate DAPHNE, Light Calibration Module and PDS PoF laser box subsections. Each hardware system has its own service-location table and protocol description.",
     "Use Light Calibration Module (LCM) throughout. State the control/monitoring inventory for LCMs and PoF laser boxes within their respective physical-interface subsections.",
     "LCMs use the same timing protocol and split configuration/monitoring paths as DAPHNE. Both DAQ and SC access local endpoint configuration and GbE monitoring through the LCM service/OPC UA adapter; the same acknowledgement, arbitration, access during timing outages and readiness requirements apply.",
@@ -22,7 +22,9 @@
     "SC assesses and publishes detector status and availability. DAQ shall check the published status and take data only when SC advertises availability; DAQ configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS. Ops handshake ownership remains open.",
     "PoF uses a compact PLC and OPC UA integration with Ignition. PLC-to-OPC-UA protocol, driver, transport, ports and server placement remain undecided. Do not assert a separate PoF native service or an adapter hosted on an SC physical server.",
     "PDS shall provide monitoring information sufficient for SC to assess and confirm detector health and diagnose readout network connections, including SFP I2C diagnostics. This responsibility covers service and firmware status, firmware and service versions, OS health, detector health and readout link diagnostics; the document describes categories and does not enumerate individual variables.",
-    "DAPHNE service placement: AXI / OS -> daphne-server -> ZMQ on DAPHNE; ZMQ client -> OPC UA bridge on the SC bridge server; OPC UA client -> Ignition on the SC server. AXI and OS are both inputs to daphne-server. DAQ configuration and arbitration remain in the OPC UA bridge; Hermes stays separate."
+    "DAPHNE service placement: AXI / OS -> daphne-server -> ZMQ on DAPHNE; ZMQ client -> OPC UA bridge on the SC bridge server; OPC UA client -> Ignition on the SC server. AXI and OS are both inputs to daphne-server. DAQ configuration and arbitration remain in the OPC UA bridge; Hermes stays separate.",
+    "Section 1 uses paragraphs, beginning with PDS protection requirements, DPS implementation and published status, SC operational permissions/availability/activity, and DAQ run admission/data tagging. Protection references a versioned cause/effect contract and remains effective independently of DAQ and the SC bridge. Existing hardware/service/health, calibration dataset and proposed SC/Ops responsibilities remain.",
+    "Section 5 contains a proposed PDS interaction matrix and explains hardware interlocks versus operational constraints. Hardware protection enforces an approved safe state independently; operational coordination admits or holds activities; permitted overlap is tagged. Seven rules retain source IDs Q-001, O-001, O-002, Q-002, C-001, P-011 and P-012. Limits, timing, scope, validity, feedback and recovery remain for responsible owner agreement. PoF has no DAQ interface; activity rules assign no PDS bias trip."
   ],
   "files": [
     {
@@ -188,6 +190,13 @@
       "revision": "1f10fc012985bed9013d83f87d5c25d2cdb5a960",
       "file": "ip_repo/daphne_ip/rtl/timing/pdts_ep_regfile.vhd",
       "sha256": "8764fcabd7dc496f07de2d236ac1e9237d8adea5dc50953ffa62132f523c0221"
+    },
+    {
+      "reference": "R9",
+      "source": "Author-provided PDS interaction matrix adapted for this ICD",
+      "file": "references/pds-interaction-matrix-v0.1.csv",
+      "revision": "0.1 (proposed, 2026-09-17)",
+      "sha256": "d8aa509466080fce57c0b061aa1ab43f63f2bab7b1503174fef54977129d07ed"
     }
   ],
   "revision": "0.2",
@@ -243,5 +252,30 @@
       "PLC/protection connection"
     ],
     "status": "Design intent and author clarification; no implemented PLC/OPC UA architecture verified"
+  },
+  "pds_matrix_basis": {
+    "status": "Proposed; responsible owner agreement pending",
+    "source_date": "2026-09-03",
+    "adapted_date": "2026-09-17",
+    "rules": [
+      "Q-001",
+      "O-001",
+      "O-002",
+      "Q-002",
+      "C-001",
+      "P-011",
+      "P-012"
+    ],
+    "sources": [
+      {
+        "file": "detector_wide_interaction_framework_v0_1.md",
+        "sha256": "a85c7f5ba4ad1787afa75c5cc6bb3bc9f8e3fbe9b92b1f6d41f5ff05de73ac4c"
+      },
+      {
+        "file": "detector_wide_interaction_register_v0_1.csv",
+        "sha256": "fa46ed478ef598747ffc191adac6d62a2b5883e1cc7e383171c365893dff1701"
+      }
+    ],
+    "adaptation": "PDS subset using the author-approved responsibilities and current ICD architecture. The source register is a discussion draft; no numeric limits, protection latency or deployed qualification is asserted. PoF remains SC/DPS only."
   }
 }

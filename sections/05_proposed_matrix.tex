@@ -1,0 +1,38 @@
+\section{Proposed PDS interaction matrix}
+\label{sec:proposed-matrix}
+
+\textbf{Hardware interlock.} Automatically trips or inhibits affected equipment
+through hardwired, local supply or autonomous DPS protection. It enforces an
+approved safe state independently of DAQ and the SC bridge.
+
+\textbf{Operational constraint.} Governs permitted activities and state
+transitions through SC/Ops coordination. It may deny or hold a conflicting
+request; an operational conflict alone does not justify an equipment trip.
+Permitted overlaps are recorded with data-quality tags.
+
+The following proposals retain the source matrix rule IDs [R9]. Each rule
+requires agreement by PDS, the affected subsystem and the responsible
+SC/DPS/DAQ owners.
+
+\begin{center}\small
+\begin{tabular}{L{0.27\textwidth}L{0.20\textwidth}L{0.46\textwidth}}
+\toprule
+\textbf{Interaction / rule} & \textbf{Class} & \textbf{Proposed response} \\
+\midrule
+Purity monitor / Q-001 & Data quality & Allow acquisition; SC publishes activity intervals and affected region for DAQ tagging. \\
+Camera illumination / O-001 & Operational exclusion & Deny the conflicting request; flag unexpected overlap and alert Ops. \\
+Ionisation or alignment laser / O-002 & Operational exclusion & Deny the conflicting request; require emission/shutter-off confirmation before PDS return. Flag unexpected overlap and alert Ops. \\
+LCM calibration / Q-002 & Calibration & Allow declared calibration; publish activity, configuration identity and affected scope for DAQ tagging. \\
+PoF / C-001 & Power dependency & Required for cathode PDS. Apply independent protection for its own faults. \\
+Supply current or voltage fault / P-011 & Equipment protection & Trip or inhibit the affected supply through the approved local/DPS path; verify its final state. \\
+Equipment overtemperature / P-012 & Equipment protection & Apply the approved local/DPS action to affected power, readout or calibration equipment. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The activity rules assign no PDS bias trip. Personnel laser safety remains
+independent. PoF has no DAQ interface.
+
+\textbf{Open for owner agreement:} excluded PDS operating states; membrane and
+cathode scope; limits and response times; input validity and failure behavior;
+actuator mapping and feedback; settling, reset and recovery conditions.
