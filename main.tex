@@ -27,7 +27,7 @@
 \author{}
 \date{17 September 2026}
 \EDMSDocNo{SC--PDS--DPS ICD}
-\EDMSDocId{To be assigned}
+\EDMSDocId{3309688}
 \draftversion{0.2 --- control, configuration and monitoring}
 \documentlabel{17 September 2026}
 \DocAuthors{Manuel Arroyave}
@@ -37,14 +37,16 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This document defines the control, configuration and monitoring (CCM)
-interfaces for DAPHNE, the Light Calibration Module and the PDS Power-over-Fiber
+This document defines the control, configuration and monitoring (CCM) and
+detector protection interfaces for DAPHNE, the Light Calibration Module and the PDS Power-over-Fiber
 (PoF) laser boxes. Each hardware system has its own physical-interface,
-service and protocol description. The responsibilities of PDS, Slow Controls,
-DPS and DAQ apply to these interfaces.
+service and protocol description. The interfaces cover PDS, Slow Controls (SC),
+the Detector Protection System (DPS) and DAQ where applicable. DPS provides
+protection infrastructure and detector protection.
 
 Configuration and control use request/response; monitoring is published.
-The scope covers detector control and monitoring used by SC and DAQ.
+The scope includes SC control and monitoring, DAQ use of DAPHNE and LCM,
+and DPS protection interfaces.
 DAQ data readout and optical timing transport are outside this scope.
 \end{abstract}
 \vfill

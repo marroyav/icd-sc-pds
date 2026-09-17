@@ -16,7 +16,9 @@
     "Section 2 is Physical interface; Section 3 is Protocols and services. Each contains separate DAPHNE, Light Calibration Module and PDS PoF laser box subsections. Each hardware system has its own service-location table and protocol description.",
     "Use Light Calibration Module (LCM) throughout. State the control/monitoring inventory for LCMs and PoF laser boxes within their respective physical-interface subsections.",
     "LCMs use the same timing protocol as DAPHNE. The timing-endpoint control/recovery requirements also apply over each LCM GbE link, through its own service and OPC UA adapter, with published acknowledgement, authorized SC recovery and LCM readiness.",
-    "PoF interacts with SC and DPS only. It has no DAQ client, availability subscription or other DAQ interface."
+    "PoF interacts with SC and DPS only. It has no DAQ client, availability subscription or other DAQ interface.",
+    "The summary explicitly includes Detector Protection System interfaces and its protection infrastructure and detector protection role.",
+    "Use EDMS ID 3309688, matching the draft, as instructed by the author."
   ],
   "files": [
     {
@@ -161,5 +163,6 @@
       "reference": "R7",
       "note": "Poster gives approximately 80 FD-VD laser-box units; PoF is a VD cathode supply in R2."
     }
-  }
+  },
+  "edms_id": "3309688"
 }

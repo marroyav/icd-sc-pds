@@ -1,6 +1,6 @@
 # SC–PDS–DPS interface control document
 
-Manuel Arroyave · revision 0.2 · 17 September 2026 · draft for review.
+Manuel Arroyave · EDMS 3309688 · revision 0.2 · 17 September 2026 · draft for review.
 
 [Read the PDF](main.pdf) · [LaTeX source](main.tex)
 
