@@ -97,14 +97,10 @@ stale or missing updates and obtain a current snapshot after reconnecting.
 \subsubsection{Timing-endpoint control and recovery over GbE}
 \label{sec:timing-recovery}
 
-Timing-endpoint configuration follows the DAQ configuration path:
-\begin{center}
-DAQ $\longleftrightarrow$ OPC UA bridge $\longleftrightarrow$
-\code{daphne-server} $\longleftrightarrow$ local timing endpoint.
-\end{center}
-The same interface shall expose reset and recovery to authorized SC clients.
-Timing monitoring shall be published over the board's GbE connection and
-made available to both SC and DAQ.
+DAQ and SC shall both set and monitor timing-endpoint variables through the
+OPC UA bridge. Configuration, reset and recovery use request/response;
+monitoring is published over the board's GbE connection through OPC UA
+subscriptions.
 
 A reset request shall identify its target and receive an execution response.
 The board shall publish reset assertion, release and the resulting endpoint
@@ -149,9 +145,10 @@ monitoring schema and compatible versions. These details remain open.
 
 LCMs use the same timing protocol as DAPHNE. The requirements in
 Section~\ref{sec:timing-recovery} apply to each LCM over its 1\,GbE CCM link,
-through the LCM service and OPC UA adapter: DAQ configuration, authorized SC
-reset/recovery, published acknowledgement and endpoint state, and command
-arbitration. Recovery shall remain available during a timing outage.
+through the LCM service and OPC UA adapter: both DAQ and SC set and monitor
+timing-endpoint variables through OPC UA, with published reset/recovery
+acknowledgement and endpoint state, and command arbitration. Recovery shall
+remain available during a timing outage.
 SC shall publish LCM readiness from fresh timing and recovery evidence;
 DAQ consumes it before calibration or data taking.
 
