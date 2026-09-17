@@ -1,43 +1,25 @@
 # SC–PDS–DPS interface control document
 
-Author: Manuel Arroyave. Revision 0.1, 17 September 2026. **Draft for review.**
+Manuel Arroyave · revision 0.2 · 17 September 2026 · draft for review.
 
-[Read the PDF](main.pdf). The editable source is [main.tex](main.tex).
+[Read the PDF](main.pdf) · [LaTeX source](main.tex)
 
-This first draft covers two subjects:
+The document covers DAPHNE control, configuration and monitoring over the shared 1 Gb Ethernet connection.
 
-1. The physical CCM connection copied from the DAQ–PDS ICD: one 1 GbE SFP connection per DAPHNE, through the switch to physical server infrastructure. FD-VD has 1,344 channels, 32 allocated channels per board and **42 boards**.
-2. The protocols and their endpoints: DAQ configuration integrated into the external OPC UA server, the board-facing Protobuf/ZeroMQ/TCP service, and **Hermes remaining separate on IPBus/UDP over the same board Ethernet connection**. Timing, opmon, supporting services and related PDS/DPS protocol boundaries are addressed with their actual network placement or an explicit unresolved interface detail.
+- FD-VD: 1,344 channels, 32 per board, **42 boards**. FD-HD: 6,000 channels, 40 per board, **150 boards**.
+- DAQ configuration, including local timing-endpoint control, is integrated into the external OPC UA server. Hermes remains separate.
+- Configuration/control uses request/response. Monitoring is published: firmware counters to DAQ opmon; voltages, temperatures, fans, service status and versions to SC.
+- SC can recover timing through the same configuration interface and publish board readiness.
 
-The document contains no monitored-variable list, variable classification, tag model or protection logic. It does not prescribe opmon as an SC ingress path. Detailed deployment choices and unverified interfaces are marked for completion.
+DAQ data readout and optical timing transport are outside the scope. The single diagram shows service placement and configuration/publication paths. Detailed variable lists are not included.
 
-Timing has its own protocol. Its reset and recovery contract exposes the reset operation and resulting board-state acknowledgement across the timing, DAPHNE, OPC UA and DAQ interfaces. Local recovery must remain reachable during an optical timing outage; releasing reset alone does not acknowledge recovered synchronization.
-
-## Format and provenance
-
-The document class, logo, title/review page and section layout follow [`marroyav/daphne-icd`](https://github.com/marroyav/daphne-icd/tree/6c0b24542f9b2504037aa895250d1441ee209fd2). The original class attribution is retained. The physical CCM wording is copied from that repository's `sections/04_interfaces.tex`; it is identical in the pinned main and proposed-v8 revisions.
-
-Review and approval fields remain pending. Immutable source revisions and local source hashes are recorded in [references/source-manifest.json](references/source-manifest.json). References R1–R9 in the PDF identify which material supports each part.
+The format and physical-interface baseline come from [daphne-icd](https://github.com/marroyav/daphne-icd/tree/6c0b24542f9b2504037aa895250d1441ee209fd2). [Source provenance](references/source-manifest.json) pins the configuration implementations. Publication endpoints and SC recovery describe the target architecture; their deployment is not established by this document.
 
 ## Build
-
-With Tectonic (verified with version 0.16.9):
 
 ```sh
 make
 make check
 ```
 
-The first build may download TeX packages. If Tectonic is not on `PATH`, use `make TECTONIC=/path/to/tectonic`. Alternatively, a TeX Live installation with the required packages can run `latexmk -pdf main.tex`.
-
-`main.pdf` is included for review; rebuild it whenever the source changes. Auxiliary build files are ignored. [VALIDATION.md](VALIDATION.md) records document checks and their limits.
-
-## Files
-
-- `main.tex`: title, review table and document assembly.
-- `sections/01_physical_layer.tex`: physical connection, inventory and installation details.
-- `sections/02_protocols.tex`: protocol architecture, interaction patterns and completion items.
-- `sections/references.tex`: source references and status.
-- `cernatlasnote.cls`, `images/logosolo.png`: format assets from `daphne-icd`.
-
-The proposed OPC UA integration and Hermes exception must be reconciled with the DAQ–PDS and DAQ–SC/DPS documents before interface approval.
+Requires Tectonic (verified: 0.16.9); override its path with `make TECTONIC=/path/to/tectonic`. TeX Live users may run `latexmk -pdf main.tex`. Build checks are recorded in [VALIDATION.md](VALIDATION.md).

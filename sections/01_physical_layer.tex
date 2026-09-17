@@ -1,125 +1,45 @@
-\section{Physical layer}
-\label{sec:physical}
+\section{Physical interface and service placement}
 
-\subsection{Connection inherited from the DAQ--PDS ICD}
-
-The physical CCM interface is taken from the \emph{Control, Configuration, and
-Monitoring (CCM)} subsection of the DAQ--PDS ICD, EDMS 2088726, as maintained in
-\code{daphne-icd} [R1, R2]:
-
-\begin{quote}
-Each DAPHNE and each LCM provides a dedicated 1\,GbE SFP link reserved for CCM
-(no data readout on this link).
-
-Fibers up to the PDS mini-rack patch panels are provided by PDS; continuation
-and active switching are coordinated with DAQ and Technical Coordination.
-\end{quote}
-
-For DAPHNE, this means \textbf{one board Ethernet connection} shared by its
-control, configuration and monitoring services. The physical path is:
+Each DAPHNE provides one dedicated 1\,GbE SFP connection for CCM, as specified
+in the DAQ--PDS ICD [R1, R2]. All board-facing services below share this link:
 \begin{center}
 \textbf{DAPHNE Ethernet interface $\longleftrightarrow$ switch
 $\longleftrightarrow$ physical server.}
 \end{center}
-The switch forwards Ethernet traffic to the appropriate server interface.
-OPC UA, ZeroMQ, Protobuf and IPBus describe software communication carried by
-the network. The OPC UA server is software deployed on physical server
-infrastructure; it is not the name of a board connector or a separate cable.
+PDS supplies the fibres to its mini-rack patch panels; continuation and active
+switching are coordinated with DAQ and Technical Coordination [R1].
 
-\subsection{FD-VD inventory}
+\subsection{Detector inventory}
 
-\begin{longtable}{L{0.48\textwidth}L{0.45\textwidth}}
-\caption{FD-VD channel and board inventory.}\\
+\begin{center}
+\begin{tabular}{lrrr}
 \toprule
-\textbf{Item} & \textbf{FD-VD baseline} \\
+\textbf{Detector} & \textbf{PDS channels} & \textbf{Channels/board} & \textbf{DAPHNE boards} \\
 \midrule
-\endhead
-PDS channels & 1,344 \\
-Channels allocated to each DAPHNE & 32 \\
-DAPHNE boards & $1,344/32=42$ \\
-DAPHNE CCM connections & 42 board connections, one per board \\
-Membrane PDS & 352 tiles, two channels per tile: 704 channels [R2] \\
-Cathode PDS & 320 tiles, two channels per tile: 640 channels [R2] \\
+FD-VD & 1,344 & 32 & 42 \\
+FD-HD & 6,000 & 40 & 150 \\
 \bottomrule
-\end{longtable}
+\end{tabular}
+\end{center}
+These are the detector design allocations [R2], with one CCM connection per
+board. FD-VD includes membrane and cathode modules; both use this CCM interface.
 
-The membrane and cathode populations add to 1,344 channels. Membrane devices
-use conductive power and electrical signal paths; cathode devices use
-Power-over-Fiber and optical signal transmission [R2]. Both reach the same
-DAPHNE CCM boundary. The installed mapping shall identify the population
-served by each board. The 32-channel allocation is the FD-VD system mapping.
+\subsection{Service locations}
 
-Servers, switches, PoF, LCM and power-supply units have separate installation
-inventories.
-
-\subsection{Physical topology and server boundary}
-
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}
-\node[box,text width=30mm] (board) at (0,0)
- {DAPHNE\\CCM SFP\\1\,Gb Ethernet};
-\node[box,text width=28mm] (switch) at (5.0,0)
- {Control-network\\switch};
-\node[box,text width=36mm] (host) at (10.1,0)
- {Physical server\\network interface};
-\draw[both] (board) -- node[above,yshift=6mm,align=center,font=\footnotesize]
- {Fibre via PDS\\patch panel} (switch);
-\draw[both] (switch) -- node[above,yshift=6mm,align=center,font=\footnotesize]
- {Provisioned\\server link} (host);
-\node[font=\footnotesize,align=center,text width=135mm] at (5.0,-1.65)
- {Repeated for 42 FD-VD DAPHNE board connections. Server and switch counts,
- uplinks and process placement are installation choices.};
-\end{tikzpicture}
-\caption{Physical CCM connection. Software-service placement is shown separately
-in Figure~\ref{fig:protocol}.}
-\end{figure}
-
-The external OPC UA server hosts the integrated DAQ configuration component
-and the Protobuf/ZeroMQ client of the DAPHNE service. Ignition connects as an
-OPC UA client. The Hermes client remains separate from this OPC UA server.
-It may run on the same physical host or another DAQ host; in either case its
-traffic reaches the same board Ethernet interface. Software separation does
-not require a second DAPHNE network connection.
-
-SC provides computing infrastructure for its DCS processes.
-PDS, SC and DAQ shall record the physical hosts for the
-integrated OPC UA/configuration server and the separate Hermes client, with
-installation and support assignments. The DPS controller and its physical I/O
-require their own endpoint description.
-
-\subsection{Physical interface specification}
-
-\begingroup\small
-\begin{longtable}{L{0.23\textwidth}L{0.38\textwidth}L{0.31\textwidth}}
-\caption{CCM physical specification and remaining installation details.}\\
+\begin{center}\small
+\begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
 \toprule
-\textbf{Element} & \textbf{Defined baseline} & \textbf{Installation detail to record} \\
+\textbf{Location} & \textbf{Services} \\
 \midrule
-\endhead
-DAPHNE port & One 1\,GbE SFP CCM link per board, copied from DAQ--PDS. & Board port label and installed SFP part number. \\
-PDS fibre and patching & PDS supplies fibres to its mini-rack patch panels. & Fibre type, connector, wavelength, length, patch route and link budget. \\
-Switch board-facing port & Compatible Ethernet termination for the board's 1\,GbE link. & Switch/port identity, compatible optic, agreed duplex and negotiation settings. \\
-Switch uplinks & Carry the aggregate CCM traffic to the server network. & Topology, line rates, contention points and redundancy arrangement. \\
-Physical server interface & Ethernet NIC connected to the provisioned control network. & Host/NIC identity, port, medium, rate and assignment to the server process. \\
+DAPHNE board & DAPHNE service and ZeroMQ endpoints; local timing-endpoint access; Hermes IPBus/UDP service. \\
+External physical server & OPC UA server containing the DAQ configuration component, Protobuf/ZeroMQ client and monitoring subscriber. \\
+SC server infrastructure & Ignition, acting as an OPC UA client of the external server. \\
+DAQ server infrastructure & DAQ CCM client/opmon and the separate Hermes client. \\
 \bottomrule
-\end{longtable}
-\endgroup
+\end{tabular}
+\end{center}
 
-The cited CCM paragraph specifies an SFP link but does not supply the complete
-CCM optical specification. The timing and 10\,GbE readout optical specifications
-in DAQ--PDS apply to their respective links and shall not be copied into the
-CCM link specification. Final installation drawings shall resolve the open
-physical details above using the selected equipment.
-
-The 1\,Gb/s line rate is shared by all enabled services on each board connection.
-Uplink and server capacity shall be sized from the combined traffic and
-concurrent operations in Section~\ref{sec:contention}.
-
-DAQ acquisition data and the optical DTS signal retain the separate physical
-interfaces defined by DAQ--PDS [R1, R2]. Here they are referenced only to identify
-what their configuration and software services do over the shared CCM link.
-
-Installation checks shall identify all 42 board routes and establish media
-compatibility, link operation and simultaneous DAPHNE/Hermes reachability
-from the actual external server infrastructure.
+Services may share a physical host. The installation record shall name their
+hosts, board/switch/server ports, SFPs and patch routes. OPC UA terminates on
+the external server. Board services, configuration and monitoring share the
+available GbE bandwidth.

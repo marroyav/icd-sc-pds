@@ -1,382 +1,115 @@
-\section{Protocols}
-\label{sec:protocols}
+\section{Control, configuration and monitoring protocols}
 
-\subsection{Architecture and protocol termination}
+\subsection{Service architecture}
 
-DAQ configuration is integrated into the external OPC UA server. DAQ supplies
-the configuration request through this server, which contains the component
-that translates the versioned DAQ configuration contract into the DAPHNE
-Protobuf/ZeroMQ exchange. Ignition connects to the same OPC UA server for the
-SC interface. The server is the common routine protocol endpoint for the
-DAPHNE configuration path. \textbf{Hermes remains separate}: its DAQ client
-uses IPBus over UDP directly to the board-side Hermes service.
-
-For the DAPHNE path, the software chain is:
-\begin{quote}
-DAPHNE internal service $\longleftrightarrow$ ZeroMQ server
-$\longleftrightarrow$ Protobuf client in the external OPC UA server
-$\longleftrightarrow$ OPC UA $\longleftrightarrow$ Ignition / DAQ client.
-\end{quote}
-The Protobuf client is an application component. Protobuf encodes the messages;
-ZeroMQ frames and routes them over TCP. Neither is a physical interface.
+The external OPC UA server integrates DAQ configuration and subscribes to
+DAPHNE monitoring. Ignition receives SC publications; the DAQ CCM client
+receives published firmware counters for opmon. Hermes retains its separate
+configuration and publication paths.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \node[box,text width=29mm] (ignition) at (0,0) {Ignition\\SC client};
-\node[box,text width=29mm] (daq) at (5.0,0) {DAQ\\configuration client};
-\node[box,text width=34mm] (hermesclient) at (10.6,0) {DAQ Hermes client\\separate service};
-\node[box,text width=74mm,minimum height=19mm] (ua) at (2.5,-2.3)
- {External OPC UA server\\Integrated DAQ configuration component\\Protobuf / ZeroMQ client};
-\node[box,text width=42mm,minimum height=15mm] (daphne) at (2.5,-5.1)
- {Board-side DAPHNE service\\ZeroMQ ROUTER};
-\node[box,text width=34mm,minimum height=15mm] (hermes) at (10.6,-5.1)
- {Board-side Hermes\\IPBus / UDP bridge};
+\node[box,text width=32mm] (daq) at (5.0,0) {DAQ CCM client\\opmon: counters};
+\node[box,text width=35mm] (hermesclient) at (10.7,0)
+ {DAQ Hermes client\\counter subscriber};
+\node[box,text width=75mm,minimum height=19mm] (ua) at (2.5,-2.3)
+ {External OPC UA server\\Integrated DAQ configuration\\Protobuf / ZeroMQ client and subscriber};
+\node[box,text width=49mm,minimum height=18mm] (daphne) at (2.5,-5.8)
+ {Board-side DAPHNE service\\Configuration endpoint\\Monitoring publisher};
+\node[box,text width=37mm,minimum height=18mm] (hermes) at (10.7,-5.8)
+ {Board-side Hermes\\IPBus / UDP service\\Counter publisher};
 \node[draw=dunegreen,dashed,rounded corners,fit=(daphne)(hermes),inner sep=8pt,
  label={[font=\footnotesize,text=dunegreen]below:One DAPHNE board; one shared 1\,Gb Ethernet CCM connection}] {};
 \draw[both] (ignition) -- node[left,font=\footnotesize]{OPC UA} (ignition |- ua.north);
 \draw[both] (daq) -- node[right,font=\footnotesize]{OPC UA} (daq |- ua.north);
-\draw[both] (ua) -- node[right,align=left,font=\footnotesize,fill=white,inner sep=2pt]
- {Protobuf / ZeroMQ\\TCP / IP} (daphne);
-\draw[both] (hermesclient) -- node[right,align=left,font=\footnotesize]
- {IPBus\\UDP / IP} (hermes);
+\draw[both] ([xshift=-11mm]ua.south) -- node[left,align=right,font=\footnotesize]
+ {Configuration\\request/response} ([xshift=-11mm]daphne.north);
+\draw[flow,draw=dunegreen] ([xshift=11mm]daphne.north) -- node[right,align=left,font=\footnotesize]
+ {Published\\monitoring} ([xshift=11mm]ua.south);
+\draw[both] ([xshift=-8mm]hermesclient.south) -- node[left,align=right,font=\footnotesize]
+ {IPBus / UDP\\configuration} ([xshift=-8mm]hermes.north);
+\draw[flow,draw=dunegreen] ([xshift=8mm]hermes.north) -- node[right,align=left,font=\footnotesize]
+ {Published\\counters} ([xshift=8mm]hermesclient.south);
 \end{tikzpicture}
-\caption{Protocol termination in the proposed architecture. Both board-facing
-paths traverse the physical switch connection in Figure~1. The external
-OPC UA server may contain several software components; the drawing does not
-assign an additional physical host to each component.}
+\caption{CCM configuration and published monitoring.}
 \label{fig:protocol}
 \end{figure}
 
-The proposed-v8 DAQ--PDS text already describes the integrated OPC UA gateway
-for DAPHNE configuration [R2]. This draft makes its extent explicit: that
-integration applies to the DAPHNE configuration service, while Hermes retains
-its own protocol endpoint. The corresponding DAQ--PDS wording and the DAQ--SC/DPS
-ICD shall be reconciled to this same topology. The controlled DAQ--SC/DPS
-document identifier and revision remain to be attached to this draft.
+\subsection{Configuration exchanges}
 
-\subsection{Protocol and exchange register}
+DAQ submits configuration through OPC UA. The server exchanges Protobuf
+messages over ZeroMQ and TCP using a DEALER client and the board's ROUTER
+endpoint [R3, R4].
+The reference port is TCP 40001 [R5]. Correlated responses shall distinguish
+acceptance, completion and failure.
 
-Table~\ref{tab:protocols} separates a request that triggers work from a
-publication produced by a running service. A configured publisher can emit
-messages without a request for each sample. This behavior does not remove the
-need to start or configure the publisher and its transport.
+Hermes retains its independent IPBus/UDP configuration endpoint, reference
+UDP 50001 [R6], outside the OPC UA server. Both services share the board
+connection and gateware lifecycle.
 
-\begingroup\small
-\begin{longtable}{L{0.19\textwidth}L{0.25\textwidth}L{0.27\textwidth}L{0.21\textwidth}}
-\caption{Protocols and service exchanges. Reference ports are not a deployment port allocation.}\label{tab:protocols}\\
+\subsection{Published monitoring}
+
+Monitoring shall be published periodically or on change, without a client
+request for each update. Only configuration and control operations, including
+reset/recovery commands, use application request/response. Local hardware
+sampling is performed by the producing service.
+
+The proposed publication transport is Protobuf over ZeroMQ PUB/SUB over TCP,
+using endpoints separate from configuration. The OPC UA server subscribes to
+DAPHNE publications and distributes them through OPC UA subscriptions.
+Hermes publishes its firmware counters to its DAQ subscriber independently.
+
+\begin{center}\small
+\begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
 \toprule
-\textbf{Interface} & \textbf{Stack / endpoint} & \textbf{Initiator and exchange} & \textbf{Network placement} \\
+\textbf{Consumer} & \textbf{Monitoring responsibility} \\
 \midrule
-\endfirsthead
-\toprule
-\textbf{Interface} & \textbf{Stack / endpoint} & \textbf{Initiator and exchange} & \textbf{Network placement} \\
-\midrule
-\endhead
-OPC UA & UA services / secure channel / UA TCP / TCP / IP; endpoint URL to assign. & Ignition or DAQ client establishes the session and issues service requests; subscriptions use the UA publication mechanism. & External server network; terminates at the OPC UA server. \\
-DAPHNE application service & Protobuf envelope V2 / ZeroMQ / TCP / IP; reference TCP 40001. & Server-side Protobuf client sends a request; DAPHNE replies. A chunked transfer produces several correlated replies. & Shared board CCM connection. \\
-Hermes & IPBus / UDP / IP; reference UDP 50001. & Separate Hermes client sends a transaction; board-side bridge returns the result. & Same board CCM connection, independent of the OPC UA server. \\
-Timing protocol & DTS serial protocol; synchronous distribution and asynchronous control/replies. & Timing master distributes timing and initiates addressed endpoint operations. Reset and recovery require board-state acknowledgement. & Separate timing interface, referenced from DAQ--PDS. \\
-Timing reset / local recovery & DAPHNE application protocol and local device/AXI access; exposed through the external OPC UA interface. & Authorized recovery client requests reset; execution and resulting board state are acknowledged across the participating interfaces. & Shared CCM connection provides the local recovery route while optical timing is unavailable. \\
-DAQ opmon & DAQ publication API plus the output transport selected by the DAQ release. & Running DAQ component publishes; its acquisition of source data can separately require a DAPHNE or Hermes request. & DAQ host/output network; any board polling shares CCM. \\
-Acquisition stream & DAQ frame format / UDP / IP / Ethernet. & Configured transmitter emits data; no control request per packet. & Separate DAQ readout link; Hermes configuration travels over CCM. \\
-Local device access & AXI/MMIO, IPBus bridge, I2C and SPI as implemented by the board image. & Board service/driver performs local transactions. & Internal board paths, reached indirectly through a network service. \\
-Infrastructure and maintenance & Enabled IP support, time service, remote administration and deployment protocols. & Depends on the installed service; see Section~\ref{sec:auxiliary}. & Board CCM or server network, as recorded for each endpoint. \\
-Other PDS / DPS endpoints & Supply SNMP, PoF/LCM/PLC interfaces and DPS integration contracts. & Device-specific; see Section~\ref{sec:related}. & Their own network or physical I/O endpoints. \\
+DAQ opmon & Firmware counters published by DAPHNE and Hermes. \\
+SC / Ignition & Voltages, temperatures, fans, service status and software/firmware versions. \\
+SC and DAQ & Timing-endpoint condition, reset/recovery progress and board readiness. \\
 \bottomrule
-\end{longtable}
-\endgroup
+\end{tabular}
+\end{center}
 
-\subsection{OPC UA and the integrated DAQ configuration component}
+Opmon shall not acquire voltage monitoring. SC receives equipment monitoring
+through the OPC UA server without an opmon dependency. Publications shall
+carry source identity, time, sequence and validity. Subscribers shall detect
+stale or missing updates and obtain a current snapshot after reconnecting.
 
-The external server terminates OPC UA and owns the translation between its
-versioned service contract and the DAPHNE application protocol. The DAQ
-configuration definitions remain tied to the selected \code{daphnemodules}
-release [R3]; the server incorporates the configuration implementation and
-its compatible Protobuf client. A second independent configuration client
-shall not bypass this server in routine operation.
+\subsection{Timing-endpoint control and recovery over GbE}
 
-The transport baseline for the OPC UA boundary is UA TCP with the binary
-mapping [R8]. The deployment shall specify the complete endpoint URL,
-application identity, certificate trust, user/application authentication,
-security policy and message-security mode. These choices apply to the
-Ignition and DAQ connections to the external server. They do not imply that
-OPC UA terminates on DAPHNE or encrypts a subsequent ZeroMQ connection.
+Timing-endpoint configuration follows the DAQ configuration path:
+\begin{center}
+DAQ $\longleftrightarrow$ OPC UA server $\longleftrightarrow$
+DAPHNE service $\longleftrightarrow$ local timing endpoint.
+\end{center}
+The same interface shall expose reset and recovery to authorized SC clients.
+Timing monitoring shall be published over the board's GbE connection and
+made available to both SC and DAQ.
 
-An OPC UA session or accepted method invocation is not, by itself, evidence
-that a DAPHNE operation finished. The server contract shall distinguish
-request admission, dispatch, completion and failure, with an operation
-identifier and a bounded result path for long operations. Queue limits,
-timeouts, cancellation and reconnect behavior shall be specified before
-integration. A retry after a lost reply shall not silently repeat a
-non-idempotent operation.
+A reset request shall identify its target and receive an execution response.
+The board shall publish reset assertion, release and the resulting endpoint
+state so that both clients can acknowledge the same recovery operation.
+Recovery access shall remain available while timing is unavailable. Concurrent
+DAQ and SC commands shall be serialized.
 
-OPC UA service requests, monitored-item subscriptions and method calls have
-different exchange patterns. Their use and supported profiles shall be
-documented in the server's released protocol description. Selecting OPC UA
-does not select a ZeroMQ PUB/SUB backend. The implementation shall explicitly
-state which backend work is requested and which work runs periodically.
+SC shall determine and publish \emph{board ready for data taking} from the
+agreed readiness conditions, including completed reset, restored clocks,
+endpoint readiness and valid synchronization [R4]. Reset release alone is
+insufficient. Missing or stale required publications shall withhold readiness.
+DAQ consumes the published readiness before resuming data taking.
 
-\subsection{DAPHNE: Protobuf over ZeroMQ over TCP}
+\subsection{Interface release and verification}
 
-The audited board service uses a ZeroMQ ROUTER socket and the DAQ reference
-client uses a DEALER socket [R3, R4]. This is a request/reply application
-protocol implemented with ROUTER/DEALER. It shall not be documented as a
-ZeroMQ REQ/REP or PUB/SUB endpoint. The integrated OPC UA server shall use the
-compatible client framing.
+Each release shall publish online the compatible server/client versions,
+Protobuf schemas, OPC UA model, Hermes interface and endpoint/port allocation.
+The configuration and publication contracts shall specify authentication,
+timeouts, queue limits, update cadence and reconnect behavior. Publication
+schemas and ports remain to be assigned.
 
-The network payload is a serialized \code{ControlEnvelopeV2} containing the
-typed Protobuf request or response. The board implementation accepts envelope
-version 2 and request direction, dispatches the message type, and returns a
-correlated response. It preserves the task identifier, correlates replies to
-the request message identifier, and supports multiple replies for chunked
-diagnostic transfers. An event enumeration in a schema does not establish an
-implemented unsolicited publisher.
-
-The reference image binds this application service to TCP port 40001 [R5].
-The service accepts a configurable bind endpoint, so examples using another
-port do not define a second production service. The installed manifest shall
-record the actual address, port, interface binding, server build, envelope
-version and Protobuf schema revision.
-
-Configuration requests, on-demand reads and large diagnostic transfers share
-the same service and transport. Chunked replies remain traffic caused by a
-request. A background device-reading thread does not make the network endpoint
-a push stream. Any new unsolicited publication endpoint shall have an explicit
-transport, socket pattern, activation rule and delivery contract.
-
-The client contract shall define maximum request/reply size, chunk completion,
-timeout, connection recovery, queue depth and handling of malformed,
-unsupported or mismatched replies. The inspected server can discard malformed
-or incompatible envelopes; clients therefore need bounded timeout behavior.
-TCP delivery and a parsed envelope do not prove that a requested hardware
-operation succeeded. Source code and configuration references shall identify
-the authentication or network-access controls actually applied to this
-board-facing connection.
-
-\subsection{Hermes: IPBus over UDP}
-
-The board-side \code{hermes_udp_srv} receives IPBus transactions over UDP.
-The reference implementation listens on UDP port 50001, transfers requests
-through the local hardware bridge and returns replies to the requesting
-client [R6]. Its hardware bridge wait interval and timeout are implementation
-settings, not a guaranteed end-to-end network response time.
-
-The separate DAQ Hermes client continues to configure the readout-link
-hardware through this interface. Hermes traffic does not pass through the
-OPC UA server. The two board services share Ethernet, IP connectivity, the
-board host and the admitted gateware image, while retaining separate sockets
-and application protocols. The configured readout packets leave on the DAQ
-data links; they are not the UDP/IPBus control packets.
-
-The Hermes release shall identify the IPBus wire version, client library,
-address-table revision, hardware bridge revision and transaction limits.
-Transaction matching, ordering, retry behavior and timeout handling shall be
-defined by that release. The mere presence of UDP does not provide reliable
-delivery or permission to replay writes. Operations using a shared hardware
-selector shall serialize the complete selection/transaction sequence at its
-owning service.
-
-The reference Linux image starts both services within a coordinated gateware
-lifecycle [R5]. Keeping Hermes outside OPC UA does not remove this dependency.
-Reconfiguration of the common gateware or loss of the shared Ethernet link
-can affect both protocols. The server and DAQ integration shall account for
-this when admitting concurrent operations.
-
-\subsection{Timing protocol, reset and recovery}
-\label{sec:timing}
-
-\textbf{Timing is a separate protocol.} The DTS serial signal and optical
-endpoint-control exchanges use the timing interface specified by DAQ--PDS
-and the DTS documents [R1, R2, R9]. The timing master distributes timing and
-initiates addressed endpoint transactions. Its management API and the
-endpoint-facing timing protocol shall be identified independently of the
-DAPHNE application protocol and Hermes/IPBus.
-
-The timing reset signal shall be exposed through the participating interfaces
-so that Timing/DTS, the DAPHNE service, the external OPC UA server and DAQ can
-acknowledge the same board state and coordinate recovery from a timing outage.
-The interface contract shall distinguish a requested reset, its assertion and
-release at the endpoint, and completion of timing recovery. A reply accepting
-the request is separate from acknowledgement of the resulting board state.
-
-The local recovery route uses the existing 1\,Gb CCM connection to the DAPHNE
-service and its local endpoint access. The external OPC UA server shall
-expose this recovery operation and its result to the authorized DAQ/SC clients.
-That route shall remain reachable while the optical timing protocol is
-unavailable. Access to reset and recovery acknowledgement shall not depend on
-already having valid timing or an active DAQ run. The board software shall
-provide the required recovery access even when its normal service startup
-sequence is waiting for timing. This availability is a requirement to verify
-for the selected image, not an assumption about its present startup behavior.
-
-Both the timing-side and local recovery paths shall refer to the same reset
-target and operation. Their mapping shall identify the actual hardware reset
-signal, its scope, the required assertion/release sequence and the board
-acknowledgement. Endpoint reset, clock reset and a whole-board restart shall
-have distinct operation semantics. Concurrent reset requests shall be
-arbitrated so that the interfaces cannot independently assert and release
-the same signal with conflicting sequences.
-
-Each interface shall preserve the operation identity and distinguish the
-board's acknowledgement from a forwarded or cached result. A reset pulse
-shall remain observable as an operation until its completion is acknowledged;
-a client polling after the pulse must still be able to determine what occurred.
-If an interface reconnects during recovery, it shall obtain the current
-operation and board state. Loss of a reply or expiration of a timeout shall
-produce an unresolved or failed operation, not an assumed successful reset.
-
-Recovery completes only after reset is released and the required clock,
-endpoint and synchronization conditions have been established. Local-clock
-operation shall not be acknowledged as recovery of DTS-synchronized operation
-[R4]. The completion result shall reach Timing/DTS, the OPC UA server and DAQ
-before DAQ declares the affected board ready for synchronized operation.
-Hermes integration shall receive the corresponding board lifecycle state
-through its agreed DAQ coordination interface; Hermes retains its separate
-IPBus protocol.
-
-The selected image and timing-controller release shall document which
-operations execute through local PS access and which use optical endpoint
-transactions. The local PS interface is not a general tunnel to the optical
-control register space. The cross-interface reset mapping, acknowledgement
-transport and recovery timeout shall be released together and verified with
-the optical timing connection unavailable, restoration of timing, a late or
-missing acknowledgement, and a client reconnecting during reset.
-
-\subsection{DAQ operational publication (opmon)}
-
-Opmon is the DAQ operational-publication interface. The library defines a
-publication API and selects an output through its configured backend; its
-reference documentation includes file and standard-output backends [R7].
-Consequently, \emph{opmon} alone does not identify a board port, a network
-protocol or a broker. The deployed DAQ release shall specify the backend,
-wire encoding, destination and delivery behavior actually used.
-
-The inspected DAPHNE DAQ controller demonstrates two separate operations:
-it makes application requests to obtain board data and then publishes through
-opmon [R3]. The first operation consumes shared board CCM resources; the
-second follows the configured DAQ publication path. Periodic publication
-does not mean that the underlying board service provides unsolicited network
-messages. The controller lifecycle and output activation shall be specified,
-including behavior before configuration, after teardown and after a lost
-connection.
-
-With DAQ configuration moved into the OPC UA server, the integration shall
-identify where any board-reading component executes and how DAQ publication
-connects to it. Existing direct board polling shall be reviewed as part of
-this change. This draft does not define opmon as an SC ingress path or require
-SC communication to pass through a DAQ publication backend. The protocol
-placement must be agreed before assigning additional board clients.
-
-\subsection{Supporting protocols and local execution}
-\label{sec:auxiliary}
-
-The board service terminates a network request and executes it using internal
-interfaces. AXI/MMIO, local IPBus bridging, I2C and SPI shall be identified in
-the implementation's dependency description. Local driver calls, shared
-memory or service-manager operations do not create additional Ethernet
-connections. A new process-to-process API shall be documented separately if
-the image introduces one.
-
-The deployment protocol inventory shall also cover the following classes
-\emph{where enabled}. Their presence or absence shall be explicit; this list
-does not assert that every service is installed.
-
-\begin{longtable}{L{0.27\textwidth}L{0.65\textwidth}}
-\caption{Additional protocol classes to record where enabled.}\\
-\toprule
-\textbf{Protocol class} & \textbf{Information required for the installed network} \\
-\midrule
-\endhead
-Ethernet and IP support & Address family, addressing method, ARP or IPv6 neighbor discovery as applicable, routing, MTU, ICMP policy and any VLAN assignment. \\
-Name and address services & DNS and DHCP if used: client/server placement, routes and behavior when the service is unavailable. Static addressing shall be recorded when used. \\
-Host time synchronization & NTP or another selected host-time protocol: server endpoints, transport and dependency. Host clock synchronization is distinct from optical DTS distribution. \\
-Remote administration & SSH and its associated file-transfer modes if enabled: approved endpoints and access path. \\
-Deployment and artifacts & HTTPS or other selected transfer protocol: repository/registry endpoints and controls on simultaneous large transfers. \\
-Logging and DAQ outputs & Selected logging, error-reporting and opmon transports: source process, destination, wire encoding, buffering and recovery. A framework name is insufficient. \\
-Expert register access & Any low-level diagnostic endpoint: protocol, port and allowed operating state. The separate legacy ASCII/ZeroMQ register server in the source is not automatically part of the production service set [R4]. \\
-\bottomrule
-\end{longtable}
-
-These services share bandwidth and host resources wherever they use the same
-board connection. Network access rules shall be generated from the installed
-endpoint inventory rather than from a presumed list of default ports.
-
-\subsection{Related PDS and DPS protocol boundaries}
-\label{sec:related}
-
-PoF laser control, LCMs, WIENER power supplies and DPS connections terminate
-on their respective devices. The physical CCM description
-copied above also covers an LCM link, but does not establish that the LCM
-implements the DAPHNE Protobuf schema.
-
-For WIENER equipment, the interface uses an SNMP agent at the
-equipment and a driver that exposes an interface to Ignition. The installed
-SNMP version, MIB revision, driver and actual OPC interface shall be recorded.
-An SNMP-to-OPC translation is distinct from the DAPHNE Protobuf-to-OPC UA path.
-For PoF/PLC and LCM equipment, the selected device API, client, protocol
-version and endpoint remain to be supplied by their owners.
-
-DPS integration requires its own controller/network interface description and
-physical I/O contract. OPC UA may present a controller interface if that is
-the selected implementation; this does not establish a protection path
-through DAPHNE Ethernet. No DPS wire protocol, PLC endpoint or discrete-I/O
-electrical specification is supplied by the board CCM description. Those
-interface details shall be supplied by the DPS interface owner.
-
-\subsection{Shared connection, contention and failure behavior}
-\label{sec:contention}
-
-The traffic budget shall include simultaneous OPC-UA-server-to-DAPHNE
-transactions, Hermes transactions, any periodic board polling, diagnostics
-and enabled maintenance traffic. OPC UA client traffic and DAQ publication
-traffic must additionally be budgeted at the external host and switch ports
-where they actually flow. A software component integrated into a physical
-server still consumes CPU time, socket queues and network capacity.
-
-Each service shall specify maximum message or transfer size, sustained and
-burst traffic, concurrent requests, queue limits, timeout and retry limits,
-and any allowed bulk-transfer window. The combined qualification shall use
-the actual host and switch topology and the 42-board FD-VD scale. Nominal
-1\,Gb Ethernet capacity alone cannot establish acceptable command latency.
-
-The integration test shall exercise DAPHNE configuration while Hermes is
-active, periodic work while a bounded diagnostic transfer runs, a slow or
-disconnected client, and recovery after network or server restart. Evidence
-shall distinguish link contention, server dispatch delay and local hardware
-execution. An unresponsive service shall not be described simply as
-\emph{Ethernet unavailable} when the other service still exchanges traffic.
-Shared-image restart behavior shall be tested as well as socket reconnection.
-
-\subsection{Online specifications, revisions and completion items}
-
-Every protocol implementation in this interface shall have an online,
-versioned specification accessible to its implementers. The release package
-shall identify the physical-interface document, server and client releases,
-Protobuf schemas, OPC UA model and methods, Hermes/IPBus/address-table
-revisions, selected DAQ/opmon backend, timing API, and enabled infrastructure
-protocols. Source and binary versions shall be tied together by immutable
-revision identifiers or artifact hashes. A moving branch name alone is not a
-reproducible interface version.
-
-The following are the remaining physical/protocol decisions for this draft:
-\begin{longtable}{L{0.10\textwidth}L{0.56\textwidth}L{0.25\textwidth}}
-\caption{Physical and protocol completion items.}\\
-\toprule
-\textbf{ID} & \textbf{Required completion} & \textbf{Responsible interfaces} \\
-\midrule
-\endhead
-P01 & Complete the CCM SFP/fibre/patch specification and switch-to-server installation schedule. & PDS, network team, DAQ/TC, SC \\
-P02 & Allocate physical hosts and resources for the integrated OPC UA server and separate Hermes client. & SC, DAQ, PDS \\
-P03 & Release the OPC UA endpoint/profile and the integrated DAQ configuration adapter with its compatible board protocol. & SC, DAQ, PDS software \\
-P04 & Pin Hermes/IPBus versions and transaction, concurrency and shared-image lifecycle behavior. & DAQ/Hermes, PDS \\
-P05 & Specify periodic board-reading placement and the selected opmon output transport after the architecture change. & DAQ, SC, PDS software \\
-P06 & Release the separate timing protocol and the cross-interface reset/board-state acknowledgement contract; verify local recovery during a timing outage. & Timing/DTS, DAQ, PDS, SC \\
-P07 & Complete the enabled auxiliary-service and related PoF/LCM/supply/DPS protocol inventories. & Each service/device owner \\
-P08 & Agree and measure traffic/latency limits at 42-board scale, including concurrent Hermes and diagnostic traffic. & PDS, SC, DAQ, network team \\
-P09 & Reconcile topology, channel/board counts and document revisions with DAQ--PDS and DAQ--SC/DPS. & PDS, DAQ, SC, DPS \\
-\bottomrule
-\end{longtable}
-
-Draft repository:
-\href{https://github.com/marroyav/icd-sc-pds}{\code{marroyav/icd-sc-pds}}.
+Verification shall cover concurrent configuration and publication on the shared
+link, the HD and VD installation scales, subscriber loss/reconnection, and SC
+timing recovery with a board-generated completion acknowledgement. The
+DAQ--PDS and DAQ--SC/DPS interface documents shall use this same CCM contract.

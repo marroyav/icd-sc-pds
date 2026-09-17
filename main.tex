@@ -28,7 +28,7 @@
 \date{17 September 2026}
 \EDMSDocNo{SC--PDS--DPS ICD}
 \EDMSDocId{To be assigned}
-\draftversion{0.1 --- physical layer and protocols}
+\draftversion{0.2 --- control, configuration and monitoring}
 \documentlabel{17 September 2026}
 \DocAuthors{Manuel Arroyave}
 \DocCheckedBy{Pending review}
@@ -37,26 +37,22 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This draft defines the physical connection and protocol architecture of the
-PDS interface to Slow Controls, DAQ and DPS. Each DAPHNE has one 1\,Gb Ethernet
-connection for control, configuration and monitoring, through a network switch
-to physical server infrastructure. DAQ configuration is integrated into the
-external OPC UA server; Hermes remains a separate protocol service on the same
-DAPHNE Ethernet connection. The FD-VD baseline is 1,344 PDS channels, with
-32 allocated channels per board and 42 DAPHNE boards.
+This document defines DAPHNE control, configuration and monitoring (CCM)
+between PDS, DAQ and Slow Controls over each board's shared 1\,Gb Ethernet
+connection. DAQ configuration, including timing-endpoint control, is integrated
+into the external OPC UA server. SC can use that path to recover timing and
+publish board readiness. Hermes remains a separate service on the same link.
 
-The document identifies protocol endpoints, the initiator of each exchange,
-request/reply and publication behavior, shared resources and the specifications
-needed for implementation. This first draft is limited to the physical layer
-and protocols. It is submitted for interface review.
+Configuration uses request/response; monitoring is published. DAQ opmon
+consumes firmware counters. SC monitors voltages, temperatures, fans, service
+status and versions. The inventory comprises 42 FD-VD boards and 150 FD-HD
+boards. DAQ data readout and optical timing transport are outside this scope.
 \end{abstract}
 \vfill
 \makereviewtable
 \clearpage
-\tableofcontents
-\clearpage
 \input{sections/01_physical_layer.tex}
-\input{sections/02_protocols.tex}
 \clearpage
+\input{sections/02_protocols.tex}
 \input{sections/references.tex}
 \end{document}

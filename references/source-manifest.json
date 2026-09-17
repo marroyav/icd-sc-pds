@@ -1,13 +1,15 @@
 {
   "prepared": "2026-09-17",
-  "scope": "Physical layer and protocols only",
+  "scope": "DAPHNE control, configuration and published monitoring over one shared 1 Gb Ethernet link; HD and VD. Data readout and optical timing transport excluded.",
   "author_design_decisions": [
-    "One board CCM Ethernet connection; copy physical wording from daphne-icd",
-    "FD-VD: 1344 channels / 32 channels per board = 42 boards",
-    "DAQ configuration integrated into external OPC UA server",
-    "Hermes remains a separate IPBus/UDP service",
-    "Do not prescribe opmon as SC ingress; no variables in this draft",
-    "Timing is a separate protocol; expose reset and board-state acknowledgement across participating interfaces and provide recovery during a timing outage."
+    "One board CCM Ethernet connection through switch to physical server; retain daphne-icd SFP baseline",
+    "FD-VD: 1344 channels / 32 channels per board = 42 boards; FD-HD: 6000 / 40 = 150 boards",
+    "DAQ configuration integrated into external OPC UA server; Hermes configuration remains separate on IPBus/UDP",
+    "Configuration and control use request/response; all monitoring is published",
+    "DAQ opmon monitors firmware counters; SC monitors voltages, temperatures, fans, service status and versions",
+    "Local timing-endpoint configuration and monitoring traverse the same GbE link; DAQ configuration path exposes recovery to SC",
+    "SC publishes board readiness from current board-generated timing and recovery evidence",
+    "Only the protocol architecture diagram is retained; no detailed variable inventory or optical timing/readout description"
   ],
   "files": [
     {
@@ -109,21 +111,8 @@
       "sha256": "48617c8005748ce80c16646518865cc279942e665eb9ec47d5b1387ea1a94140"
     }
   ],
-  "online_references": [
-    {
-      "reference": "R7",
-      "url": "https://github.com/DUNE-DAQ/opmonlib/tree/2609ae7ed89d188186de5c998fce633ff501f404",
-      "accessed": "2026-09-17"
-    },
-    {
-      "reference": "R8",
-      "url": "https://reference.opcfoundation.org/specs/OPC-10000-6/7.1",
-      "accessed": "2026-09-17"
-    },
-    {
-      "reference": "R8",
-      "url": "https://libzmq.readthedocs.io/en/latest/zmq_socket.html",
-      "accessed": "2026-09-17"
-    }
+  "revision": "0.2",
+  "implementation_proposals": [
+    "Dedicated Protobuf/ZeroMQ PUB/SUB/TCP publication endpoints; schemas and ports require assignment and implementation qualification."
   ]
 }
