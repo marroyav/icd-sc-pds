@@ -5,7 +5,7 @@
 \toprule
 \textbf{Group} & \textbf{Role} \\
 \midrule
-PDS & Provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions. Shall provide health monitoring information sufficient for SC to assess and confirm detector health. \\
+PDS & Provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions. Shall provide monitoring information sufficient for SC to assess and confirm detector health and diagnose readout network connections, including SFP I\textsuperscript{2}C diagnostics. \\
 SC & Provides control and monitoring infrastructure, arbitrates access to detector controls and monitoring data, and assesses and publishes detector status and availability. \\
 DPS & Provides protection infrastructure and detector protection. \\
 DAQ & Uses the detector. Shall check the status published by SC and take data only when SC advertises detector availability. Configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS. \\

@@ -83,7 +83,7 @@ distributes them through OPC UA subscriptions to the SC server and DAQ opmon.
 \textbf{Consumer} & \textbf{Monitoring responsibility} \\
 \midrule
 DAQ opmon & Firmware counters, timing state and applied data-readout configuration, published by \code{daphne-server} through the OPC UA bridge. \\
-SC / Ignition & Voltages, temperatures, fans, service status and software/firmware versions. \\
+SC / Ignition & Voltages, temperatures, fans, readout link diagnostics (including SFP I\textsuperscript{2}C monitoring), service status and software/firmware versions. \\
 SC and DAQ & Timing-endpoint condition, reset/recovery progress and board readiness. \\
 \bottomrule
 \end{tabular}
