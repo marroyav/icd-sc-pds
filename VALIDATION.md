@@ -2,15 +2,15 @@
 
 Validated 17 September 2026.
 
-- Tectonic 0.16.9: successful build, **5 pages**, no box warnings or undefined references.
-- All five pages visually inspected; text remains within page bounds. One protocol diagram; the redundant physical diagram and standalone contents page were removed.
-- Inventory checked against daphne-icd: VD 1,344 / 32 = 42; HD 6,000 / 40 = 150.
-- Scope reviewed: DAQ/SC control, configuration and published monitoring over the shared GbE link. Data readout and optical timing transport have no descriptive sections.
-- Configuration/control uses request/response; monitoring is published. Firmware counters go to opmon; equipment health and versions go to SC.
-- Timing configuration and SC recovery use the DAQ configuration interface over GbE, with published board-state acknowledgement and SC readiness.
-- No detailed variable catalogue or references to the earlier SC–PDS draft. Six configuration/source reference groups; hashes in references/source-manifest.json.
-- Git whitespace checks cover authored files; the unchanged imported class retains upstream formatting.
+- Tectonic 0.16.9: successful build, **5 pages**, no overflow or undefined references; minor paragraph spacing warning.
+- Text remains within page bounds; the single protocol diagram and monitoring table were reviewed after the CCM/opmon correction.
+- Inventory: FD-VD 1,344 / 32 = 42; FD-HD 6,000 / 40 = 150.
+- DAQ CCM controls run variables and timing-endpoint settings. Configuration/control uses request/response.
+- daphne-server publishes firmware counters, timing state and applied readout configuration through OPC UA to DAQ opmon. Hermes receives configuration over UDP/IPBus; no Hermes counter-publication path is present.
+- SC receives equipment monitoring and versions, can recover timing and publishes board readiness.
+- No data-readout transport, optical timing transport or detailed variable catalogue is described. Six source-reference groups remain.
+- Git whitespace checks cover authored files; the imported class retains upstream formatting.
 
-PDF SHA-256: `61d9070d47ff686d45069c443264712f8b5608034a1dc53318b68e9033acd6a4`
+PDF SHA-256: `f4e4666107357190e574571512a51a77b744fb770f725ceb560381adfda0f988`
 
-These are document checks. The proposed publication endpoints, SC recovery integration and operating limits require implementation and qualification; this edit does not establish deployed support.
+These are document checks. Publication endpoints and SC recovery integration require implementation and qualification.

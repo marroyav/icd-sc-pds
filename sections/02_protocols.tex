@@ -2,36 +2,34 @@
 
 \subsection{Service architecture}
 
-The external OPC UA server integrates DAQ configuration and subscribes to
-DAPHNE monitoring. Ignition receives SC publications; the DAQ CCM client
-receives published firmware counters for opmon. Hermes retains its separate
-configuration and publication paths.
+The OPC UA server hosts DAQ configuration and forwards publications from
+\code{daphne-server}: equipment monitoring to Ignition; firmware counters,
+timing state and applied readout configuration to DAQ opmon.
+Hermes receives configuration over UDP/IPBus.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
 \node[box,text width=29mm] (ignition) at (0,0) {Ignition\\SC client};
-\node[box,text width=32mm] (daq) at (5.0,0) {DAQ CCM client\\opmon: counters};
+\node[box,text width=32mm] (daq) at (5.0,0) {DAQ CCM client\\opmon subscriber};
 \node[box,text width=35mm] (hermesclient) at (10.7,0)
- {DAQ Hermes client\\counter subscriber};
+ {DAQ Hermes\\configuration client};
 \node[box,text width=75mm,minimum height=19mm] (ua) at (2.5,-2.3)
  {External OPC UA server\\Integrated DAQ configuration\\Protobuf / ZeroMQ client and subscriber};
 \node[box,text width=49mm,minimum height=18mm] (daphne) at (2.5,-5.8)
- {Board-side DAPHNE service\\Configuration endpoint\\Monitoring publisher};
+ {Board-side daphne-server\\Configuration endpoint\\Monitoring publisher};
 \node[box,text width=37mm,minimum height=18mm] (hermes) at (10.7,-5.8)
- {Board-side Hermes\\IPBus / UDP service\\Counter publisher};
+ {Board-side Hermes\\IPBus / UDP\\Configuration endpoint};
 \node[draw=dunegreen,dashed,rounded corners,fit=(daphne)(hermes),inner sep=8pt,
  label={[font=\footnotesize,text=dunegreen]below:One DAPHNE board; one shared 1\,Gb Ethernet CCM connection}] {};
 \draw[both] (ignition) -- node[left,font=\footnotesize]{OPC UA} (ignition |- ua.north);
 \draw[both] (daq) -- node[right,font=\footnotesize]{OPC UA} (daq |- ua.north);
 \draw[both] ([xshift=-11mm]ua.south) -- node[left,align=right,font=\footnotesize]
  {Configuration\\request/response} ([xshift=-11mm]daphne.north);
-\draw[flow,draw=dunegreen] ([xshift=11mm]daphne.north) -- node[right,align=left,font=\footnotesize]
+\draw[flow,draw=dunegreen] ([xshift=11mm]daphne.north) -- node[right,align=left,font=\footnotesize,fill=white,inner sep=2pt]
  {Published\\monitoring} ([xshift=11mm]ua.south);
-\draw[both] ([xshift=-8mm]hermesclient.south) -- node[left,align=right,font=\footnotesize]
- {IPBus / UDP\\configuration} ([xshift=-8mm]hermes.north);
-\draw[flow,draw=dunegreen] ([xshift=8mm]hermes.north) -- node[right,align=left,font=\footnotesize]
- {Published\\counters} ([xshift=8mm]hermesclient.south);
+\draw[both] (hermesclient.south) -- node[right,align=left,font=\footnotesize]
+ {IPBus / UDP\\configuration} (hermes.north);
 \end{tikzpicture}
 \caption{CCM configuration and published monitoring.}
 \label{fig:protocol}
@@ -39,7 +37,8 @@ configuration and publication paths.
 
 \subsection{Configuration exchanges}
 
-DAQ submits configuration through OPC UA. The server exchanges Protobuf
+DAQ CCM controls run variables and timing-endpoint settings through OPC UA.
+The server exchanges Protobuf
 messages over ZeroMQ and TCP using a DEALER client and the board's ROUTER
 endpoint [R3, R4].
 The reference port is TCP 40001 [R5]. Correlated responses shall distinguish
@@ -58,15 +57,16 @@ sampling is performed by the producing service.
 
 The proposed publication transport is Protobuf over ZeroMQ PUB/SUB over TCP,
 using endpoints separate from configuration. The OPC UA server subscribes to
-DAPHNE publications and distributes them through OPC UA subscriptions.
-Hermes publishes its firmware counters to its DAQ subscriber independently.
+\code{daphne-server} publications and distributes them through OPC UA
+subscriptions. Opmon monitoring follows the path
+\code{daphne-server} $\rightarrow$ OPC UA server $\rightarrow$ DAQ opmon.
 
 \begin{center}\small
 \begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
 \toprule
 \textbf{Consumer} & \textbf{Monitoring responsibility} \\
 \midrule
-DAQ opmon & Firmware counters published by DAPHNE and Hermes. \\
+DAQ opmon & Firmware counters, timing state and applied data-readout configuration, published by \code{daphne-server} through OPC UA. \\
 SC / Ignition & Voltages, temperatures, fans, service status and software/firmware versions. \\
 SC and DAQ & Timing-endpoint condition, reset/recovery progress and board readiness. \\
 \bottomrule

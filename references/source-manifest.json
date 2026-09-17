@@ -4,9 +4,9 @@
   "author_design_decisions": [
     "One board CCM Ethernet connection through switch to physical server; retain daphne-icd SFP baseline",
     "FD-VD: 1344 channels / 32 channels per board = 42 boards; FD-HD: 6000 / 40 = 150 boards",
-    "DAQ configuration integrated into external OPC UA server; Hermes configuration remains separate on IPBus/UDP",
+    "DAQ CCM controls run variables and timing-endpoint settings through the configuration component integrated into the external OPC UA server; Hermes receives configuration on its separate IPBus/UDP endpoint; it does not publish counters",
     "Configuration and control use request/response; all monitoring is published",
-    "DAQ opmon monitors firmware counters; SC monitors voltages, temperatures, fans, service status and versions",
+    "daphne-server publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon; SC monitors voltages, temperatures, fans, service status and versions",
     "Local timing-endpoint configuration and monitoring traverse the same GbE link; DAQ configuration path exposes recovery to SC",
     "SC publishes board readiness from current board-generated timing and recovery evidence",
     "Only the protocol architecture diagram is retained; no detailed variable inventory or optical timing/readout description"
@@ -113,6 +113,6 @@
   ],
   "revision": "0.2",
   "implementation_proposals": [
-    "Dedicated Protobuf/ZeroMQ PUB/SUB/TCP publication endpoints; schemas and ports require assignment and implementation qualification."
+    "Dedicated daphne-server Protobuf/ZeroMQ PUB/SUB/TCP publication endpoint feeding the external OPC UA server; schema and port require assignment and implementation qualification."
   ]
 }

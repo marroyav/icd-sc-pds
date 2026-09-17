@@ -31,7 +31,7 @@ board. FD-VD includes membrane and cathode modules; both use this CCM interface.
 \toprule
 \textbf{Location} & \textbf{Services} \\
 \midrule
-DAPHNE board & DAPHNE service and ZeroMQ endpoints; local timing-endpoint access; Hermes IPBus/UDP service. \\
+DAPHNE board & \code{daphne-server} and ZeroMQ endpoints; local timing-endpoint access; Hermes IPBus/UDP configuration service. \\
 External physical server & OPC UA server containing the DAQ configuration component, Protobuf/ZeroMQ client and monitoring subscriber. \\
 SC server infrastructure & Ignition, acting as an OPC UA client of the external server. \\
 DAQ server infrastructure & DAQ CCM client/opmon and the separate Hermes client. \\

@@ -39,12 +39,15 @@
 \begin{abstract}
 This document defines DAPHNE control, configuration and monitoring (CCM)
 between PDS, DAQ and Slow Controls over each board's shared 1\,Gb Ethernet
-connection. DAQ configuration, including timing-endpoint control, is integrated
+connection. DAQ CCM controls run variables and timing-endpoint settings through
+the configuration component integrated
 into the external OPC UA server. SC can use that path to recover timing and
 publish board readiness. Hermes remains a separate service on the same link.
 
 Configuration uses request/response; monitoring is published. DAQ opmon
-consumes firmware counters. SC monitors voltages, temperatures, fans, service
+receives firmware counters, timing state and applied readout configuration
+from \code{daphne-server} through OPC UA.
+SC monitors voltages, temperatures, fans, service
 status and versions. The inventory comprises 42 FD-VD boards and 150 FD-HD
 boards. DAQ data readout and optical timing transport are outside this scope.
 \end{abstract}
