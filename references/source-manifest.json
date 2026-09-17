@@ -19,7 +19,7 @@
     "PoF interacts with SC and DPS only. It has no DAQ client, availability subscription or other DAQ interface.",
     "The summary explicitly includes Detector Protection System interfaces and its protection infrastructure and detector protection role.",
     "Use EDMS ID 3309688, matching the draft, as instructed by the author.",
-    "SC assesses and publishes detector status. DAQ shall check that status and complete a handshake with Operations before data taking; DAQ configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS.",
+    "SC assesses and publishes detector status and availability. DAQ shall check the published status and take data only when SC advertises availability; DAQ configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS. Ops handshake ownership remains open.",
     "PoF uses a compact PLC and OPC UA integration with Ignition. PLC-to-OPC-UA protocol, driver, transport, ports and server placement remain undecided. Do not assert a separate PoF native service or an adapter hosted on an SC physical server.",
     "PDS shall provide health monitoring information sufficient for SC to assess and confirm detector health. This responsibility covers service and firmware status, firmware and service versions, OS health and detector health information; the document keeps the responsibility concise and does not enumerate individual variables.",
     "DAPHNE service placement: AXI / OS -> daphne-server -> ZMQ on DAPHNE; ZMQ client -> OPC UA bridge on the SC bridge server; OPC UA client -> Ignition on the SC server. AXI and OS are both inputs to daphne-server. DAQ configuration and arbitration remain in the OPC UA bridge; Hermes stays separate."
@@ -141,7 +141,8 @@
   "revision": "0.2",
   "implementation_proposals": [
     "Dedicated daphne-server Protobuf/ZeroMQ PUB/SUB/TCP publication endpoint feeding the ZMQ client on the SC bridge server and its OPC UA bridge; schema and port require assignment and implementation qualification.",
-    "LCM control service has an OPC UA adapter in SC infrastructure; configuration/control request-response and published monitoring are requirements. LCM native control protocol details remain to be specified."
+    "LCM control service has an OPC UA adapter in SC infrastructure; configuration/control request-response and published monitoring are requirements. LCM native control protocol details remain to be specified.",
+    "Ops arbitration: SC completes the handshake with Operations and publishes detector availability only after detector health and Ops authorization are confirmed. This allocation is proposed; handshake ownership remains to be agreed. No definite DAQ-to-Ops handshake is required by the revised text."
   ],
   "source_notes": [
     "R2 specifies a dedicated 1 GbE SFP CCM link per LCM and cathode PoF power. The four-group responsibility assignment follows the author instruction of 2026-09-17. No implemented calibration/PoF native protocol or DPS connection is asserted."

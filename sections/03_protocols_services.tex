@@ -116,7 +116,8 @@ SC shall determine and publish \emph{board ready for data taking} from the
 agreed readiness conditions, including completed reset, restored clocks,
 endpoint readiness and valid synchronization [R4]. Reset release alone is
 insufficient. Missing or stale required publications shall withhold readiness.
-DAQ consumes the published readiness before resuming data taking.
+DAQ checks both board readiness and the detector availability published by SC
+before resuming data taking.
 
 \subsection{Light Calibration Module}
 \label{sec:services-calibration}

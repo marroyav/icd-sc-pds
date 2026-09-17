@@ -6,9 +6,13 @@
 \textbf{Group} & \textbf{Role} \\
 \midrule
 PDS & Provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions. Shall provide health monitoring information sufficient for SC to assess and confirm detector health. \\
-SC & Provides control and monitoring infrastructure, arbitrates access to detector controls and monitoring data, and assesses and publishes detector status. \\
+SC & Provides control and monitoring infrastructure, arbitrates access to detector controls and monitoring data, and assesses and publishes detector status and availability. \\
 DPS & Provides protection infrastructure and detector protection. \\
-DAQ & Uses the detector. Shall check the detector status published by SC and complete a handshake with Operations (Ops) before taking data. Configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS. \\
+DAQ & Uses the detector. Shall check the status published by SC and take data only when SC advertises detector availability. Configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS. \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\textbf{Ops arbitration (proposed; ownership to be agreed).} SC completes the
+handshake with Operations (Ops) and advertises detector availability only after
+detector health and Ops authorization are confirmed.
