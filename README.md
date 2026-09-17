@@ -13,7 +13,7 @@ The document covers DAPHNE control, configuration and monitoring over the shared
 
 DAQ data readout and optical timing transport are outside the scope. The single diagram shows service placement and configuration/publication paths. Detailed variable lists are not included.
 
-The format and physical-interface baseline come from [daphne-icd](https://github.com/marroyav/daphne-icd/tree/6c0b24542f9b2504037aa895250d1441ee209fd2). [Source provenance](references/source-manifest.json) pins the configuration implementations. Publication endpoints and SC recovery describe the target architecture; their deployment is not established by this document.
+The format and physical-interface baseline come from [daphne-icd](https://github.com/marroyav/daphne-icd/tree/6c0b24542f9b2504037aa895250d1441ee209fd2). Server and runtime sources use [DUNE-DAQ/daphne-os](https://github.com/DUNE-DAQ/daphne-os/tree/e31bdfbfcc177c06458a5a05189e91a3b17fc7d5). [Source provenance](references/source-manifest.json) pins the revisions and file hashes. Publication endpoints and SC recovery describe the target architecture; their deployment is not established by this document.
 
 ## Build
 

@@ -9,7 +9,8 @@
     "daphne-server publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon; SC monitors voltages, temperatures, fans, service status and versions",
     "Local timing-endpoint configuration and monitoring traverse the same GbE link; DAQ configuration path exposes recovery to SC",
     "SC publishes board readiness from current board-generated timing and recovery evidence",
-    "Only the protocol architecture diagram is retained; no detailed variable inventory or optical timing/readout description"
+    "Only the protocol architecture diagram is retained; no detailed variable inventory or optical timing/readout description",
+    "Use DUNE-DAQ/daphne-os for daphne-server, Protobuf schemas, endpoint recovery documentation and runtime services."
   ],
   "files": [
     {
@@ -63,38 +64,43 @@
     },
     {
       "reference": "R4",
-      "source": "https://github.com/ecristal/daphneZMQ",
-      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
-      "file": "srcs/server_controller/router_server.cpp",
-      "sha256": "a3d3d2966a892f1e55c9e8f5b03d9660a2a7ea21d765023255b08e3f750ecf94"
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
+      "file": "daphne-server/srcs/server_controller/router_server.cpp",
+      "sha256": "a0f670b85bab9893fd3e142e65e3c9549c3d7405e7e80e24f4f145416d961436",
+      "source_branch": "fix/server-v05-register-coverage"
     },
     {
       "reference": "R4",
-      "source": "https://github.com/ecristal/daphneZMQ",
-      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
-      "file": "srcs/protobuf/daphneV3_high_level_confs.proto",
-      "sha256": "51cc0bd5a2171ad43249b364d385de89dfca1a6ed4f11d345c0636489f7074c0"
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
+      "file": "daphne-server/srcs/protobuf/daphneV3_high_level_confs.proto",
+      "sha256": "3e5802f3b171c5d94aa6a02e032b01184fbca1aff47738ef33b6b81f99ec5177",
+      "source_branch": "fix/server-v05-register-coverage"
     },
     {
       "reference": "R4",
-      "source": "https://github.com/ecristal/daphneZMQ",
-      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
-      "file": "README.md",
-      "sha256": "cdb063235131f6390e4efc21e564cbbc8cbab5d8f3a197e00f1b639c33e9086e"
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
+      "file": "daphne-server/README.md",
+      "sha256": "f0846602ba35f9f73ee6e3e183a77d18e5ad768baac3a1654aea6c0848eab725",
+      "source_branch": "fix/server-v05-register-coverage"
     },
     {
       "reference": "R5",
-      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
-      "revision": "ae2c7be986ba4930968a2821afc641d5f52591a4",
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
       "file": "petalinux/meta-daphne/recipes-core/daphne-services/files/daphne.service",
-      "sha256": "82bc6b0f764778ff7c1b8dace829d793c2f55231464f0069dd0d2b1e7f949356"
+      "sha256": "ae00cd4eae530b1f549b2f5174bb58cb42e630eda3a9024c83c32418f08e5a63",
+      "source_branch": "fix/server-v05-register-coverage"
     },
     {
       "reference": "R5",
-      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
-      "revision": "ae2c7be986ba4930968a2821afc641d5f52591a4",
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
       "file": "petalinux/meta-daphne/recipes-core/daphne-services/files/hermes.service",
-      "sha256": "e44e85133463eee13158e819c9eccb74dc4ac7ae481378967391135a87c89788"
+      "sha256": "e44e85133463eee13158e819c9eccb74dc4ac7ae481378967391135a87c89788",
+      "source_branch": "fix/server-v05-register-coverage"
     },
     {
       "reference": "R6",
@@ -105,10 +111,11 @@
     },
     {
       "reference": "R4",
-      "source": "https://github.com/ecristal/daphneZMQ",
-      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
-      "file": "docs/endpoint-safety-contract.md",
-      "sha256": "48617c8005748ce80c16646518865cc279942e665eb9ec47d5b1387ea1a94140"
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
+      "file": "daphne-server/docs/endpoint-safety-contract.md",
+      "sha256": "48617c8005748ce80c16646518865cc279942e665eb9ec47d5b1387ea1a94140",
+      "source_branch": "fix/server-v05-register-coverage"
     }
   ],
   "revision": "0.2",
