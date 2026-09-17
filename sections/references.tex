@@ -24,9 +24,11 @@ publication. This source predates the proposed integration into OPC UA.
 \item[R4 --- Board-side DAPHNE implementation.]
 \href{https://github.com/ecristal/daphneZMQ/tree/aa2942a58d62e19a49cdfbf0b382ed118fcef9a5}{\code{ecristal/daphneZMQ}, \code{aa2942a}}:
 \code{srcs/server_controller/router_server.cpp},
-\code{srcs/protobuf/daphneV3_high_level_confs.proto} and \code{README.md}.
+\code{srcs/protobuf/daphneV3_high_level_confs.proto},
+\code{docs/endpoint-safety-contract.md} and \code{README.md}.
 Source evidence for ROUTER framing, envelope version 2, request dispatch and
-chunked replies. The cited snapshot is not a claim about every deployed board.
+chunked replies and local endpoint recovery prerequisites. The cited snapshot
+is not a claim about every deployed board.
 
 \item[R5 --- Board image service endpoints and lifecycle.]
 \href{https://github.com/DUNE-DAQ/daphne-firmware/tree/ae2c7be986ba4930968a2821afc641d5f52591a4/petalinux/meta-daphne/recipes-core/daphne-services/files}{\code{DUNE-DAQ/daphne-firmware}, \code{ae2c7be}}:

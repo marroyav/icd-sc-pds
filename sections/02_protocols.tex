@@ -76,8 +76,8 @@ need to start or configure the publisher and its transport.
 OPC UA & UA services / secure channel / UA TCP / TCP / IP; endpoint URL to assign. & Ignition or DAQ client establishes the session and issues service requests; subscriptions use the UA publication mechanism. & External server network; terminates at the OPC UA server. \\
 DAPHNE application service & Protobuf envelope V2 / ZeroMQ / TCP / IP; reference TCP 40001. & Server-side Protobuf client sends a request; DAPHNE replies. A chunked transfer produces several correlated replies. & Shared board CCM connection. \\
 Hermes & IPBus / UDP / IP; reference UDP 50001. & Separate Hermes client sends a transaction; board-side bridge returns the result. & Same board CCM connection, independent of the OPC UA server. \\
-Local timing configuration & DAPHNE application requests followed by local device/AXI access. & Integrated configuration component requests supported local operations through the DAPHNE service. & CCM for request/reply; internal board bus for execution. \\
-Optical DTS & DTS serial protocol; synchronous distribution and asynchronous control/replies. & Timing master distributes timing and initiates addressed endpoint operations. & Separate timing interface, referenced from DAQ--PDS. \\
+Timing protocol & DTS serial protocol; synchronous distribution and asynchronous control/replies. & Timing master distributes timing and initiates addressed endpoint operations. Reset and recovery require board-state acknowledgement. & Separate timing interface, referenced from DAQ--PDS. \\
+Timing reset / local recovery & DAPHNE application protocol and local device/AXI access; exposed through the external OPC UA interface. & Authorized recovery client requests reset; execution and resulting board state are acknowledged across the participating interfaces. & Shared CCM connection provides the local recovery route while optical timing is unavailable. \\
 DAQ opmon & DAQ publication API plus the output transport selected by the DAQ release. & Running DAQ component publishes; its acquisition of source data can separately require a DAPHNE or Hermes request. & DAQ host/output network; any board polling shares CCM. \\
 Acquisition stream & DAQ frame format / UDP / IP / Ethernet. & Configured transmitter emits data; no control request per packet. & Separate DAQ readout link; Hermes configuration travels over CCM. \\
 Local device access & AXI/MMIO, IPBus bridge, I2C and SPI as implemented by the board image. & Board service/driver performs local transactions. & Internal board paths, reached indirectly through a network service. \\
@@ -183,27 +183,65 @@ Reconfiguration of the common gateware or loss of the shared Ethernet link
 can affect both protocols. The server and DAQ integration shall account for
 this when admitting concurrent operations.
 
-\subsection{Timing exchanges}
+\subsection{Timing protocol, reset and recovery}
+\label{sec:timing}
 
-Timing has two distinct communication paths relevant to this interface.
-Supported local configuration requests reach the DAPHNE service over the
-shared CCM connection and execute through local board drivers or mapped
-register access. These requests belong in the integrated DAQ configuration
-path when they are part of that configuration contract.
+\textbf{Timing is a separate protocol.} The DTS serial signal and optical
+endpoint-control exchanges use the timing interface specified by DAQ--PDS
+and the DTS documents [R1, R2, R9]. The timing master distributes timing and
+initiates addressed endpoint transactions. Its management API and the
+endpoint-facing timing protocol shall be identified independently of the
+DAPHNE application protocol and Hermes/IPBus.
 
-The DTS serial signal and optical endpoint-control exchanges use the timing
-interface specified by DAQ--PDS and the DTS documents [R1, R2, R9]. They are
-not Ethernet packets on the 1\,Gb CCM link. The timing master's management
-interface is also a distinct endpoint. Its deployment protocol and the
-endpoint-facing API shall be identified by Timing/DAQ; no route through
-Hermes or the OPC UA server is implied merely by the word \emph{timing}.
+The timing reset signal shall be exposed through the participating interfaces
+so that Timing/DTS, the DAPHNE service, the external OPC UA server and DAQ can
+acknowledge the same board state and coordinate recovery from a timing outage.
+The interface contract shall distinguish a requested reset, its assertion and
+release at the endpoint, and completion of timing recovery. A reply accepting
+the request is separate from acknowledgement of the resulting board state.
 
-The local PS interface is not a general tunnel to the endpoint's optical
-control register space. The selected image and timing-controller release
-shall document which operations are local, which are master-initiated, and
-which replies complete each operation. This prevents an implementation from
-sending a request to an unrelated service or assuming that one reachable
-socket establishes the whole timing path.
+The local recovery route uses the existing 1\,Gb CCM connection to the DAPHNE
+service and its local endpoint access. The external OPC UA server shall
+expose this recovery operation and its result to the authorized DAQ/SC clients.
+That route shall remain reachable while the optical timing protocol is
+unavailable. Access to reset and recovery acknowledgement shall not depend on
+already having valid timing or an active DAQ run. The board software shall
+provide the required recovery access even when its normal service startup
+sequence is waiting for timing. This availability is a requirement to verify
+for the selected image, not an assumption about its present startup behavior.
+
+Both the timing-side and local recovery paths shall refer to the same reset
+target and operation. Their mapping shall identify the actual hardware reset
+signal, its scope, the required assertion/release sequence and the board
+acknowledgement. Endpoint reset, clock reset and a whole-board restart shall
+have distinct operation semantics. Concurrent reset requests shall be
+arbitrated so that the interfaces cannot independently assert and release
+the same signal with conflicting sequences.
+
+Each interface shall preserve the operation identity and distinguish the
+board's acknowledgement from a forwarded or cached result. A reset pulse
+shall remain observable as an operation until its completion is acknowledged;
+a client polling after the pulse must still be able to determine what occurred.
+If an interface reconnects during recovery, it shall obtain the current
+operation and board state. Loss of a reply or expiration of a timeout shall
+produce an unresolved or failed operation, not an assumed successful reset.
+
+Recovery completes only after reset is released and the required clock,
+endpoint and synchronization conditions have been established. Local-clock
+operation shall not be acknowledged as recovery of DTS-synchronized operation
+[R4]. The completion result shall reach Timing/DTS, the OPC UA server and DAQ
+before DAQ declares the affected board ready for synchronized operation.
+Hermes integration shall receive the corresponding board lifecycle state
+through its agreed DAQ coordination interface; Hermes retains its separate
+IPBus protocol.
+
+The selected image and timing-controller release shall document which
+operations execute through local PS access and which use optical endpoint
+transactions. The local PS interface is not a general tunnel to the optical
+control register space. The cross-interface reset mapping, acknowledgement
+transport and recovery timeout shall be released together and verified with
+the optical timing connection unavailable, restoration of timing, a late or
+missing acknowledgement, and a client reconnecting during reset.
 
 \subsection{DAQ operational publication (opmon)}
 
@@ -333,7 +371,7 @@ P02 & Allocate physical hosts and resources for the integrated OPC UA server and
 P03 & Release the OPC UA endpoint/profile and the integrated DAQ configuration adapter with its compatible board protocol. & SC, DAQ, PDS software \\
 P04 & Pin Hermes/IPBus versions and transaction, concurrency and shared-image lifecycle behavior. & DAQ/Hermes, PDS \\
 P05 & Specify periodic board-reading placement and the selected opmon output transport after the architecture change. & DAQ, SC, PDS software \\
-P06 & Identify the local versus master-facing timing APIs and their supported request/result paths. & Timing/DTS, DAQ, PDS \\
+P06 & Release the separate timing protocol and the cross-interface reset/board-state acknowledgement contract; verify local recovery during a timing outage. & Timing/DTS, DAQ, PDS, SC \\
 P07 & Complete the enabled auxiliary-service and related PoF/LCM/supply/DPS protocol inventories. & Each service/device owner \\
 P08 & Agree and measure traffic/latency limits at 42-board scale, including concurrent Hermes and diagnostic traffic. & PDS, SC, DAQ, network team \\
 P09 & Reconcile topology, channel/board counts and document revisions with DAQ--PDS and DAQ--SC/DPS. & PDS, DAQ, SC, DPS \\

@@ -6,7 +6,8 @@
     "FD-VD: 1344 channels / 32 channels per board = 42 boards",
     "DAQ configuration integrated into external OPC UA server",
     "Hermes remains a separate IPBus/UDP service",
-    "Do not prescribe opmon as SC ingress; no variables in this draft"
+    "Do not prescribe opmon as SC ingress; no variables in this draft",
+    "Timing is a separate protocol; expose reset and board-state acknowledgement across participating interfaces and provide recovery during a timing outage."
   ],
   "files": [
     {
@@ -99,6 +100,13 @@
       "revision": "887d5fc06b85d97ebb654f6a73baa87d8078fa3f",
       "file": "soc/src/hermes_udp_srv.cxx",
       "sha256": "6d83bd3f8b84dbdebbdf79c75b39a986731be0b1a8d5db9655229f3455a511c4"
+    },
+    {
+      "reference": "R4",
+      "source": "https://github.com/ecristal/daphneZMQ",
+      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
+      "file": "docs/endpoint-safety-contract.md",
+      "sha256": "48617c8005748ce80c16646518865cc279942e665eb9ec47d5b1387ea1a94140"
     }
   ],
   "online_references": [

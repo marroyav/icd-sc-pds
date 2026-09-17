@@ -11,6 +11,8 @@ This first draft covers two subjects:
 
 The document contains no monitored-variable list, variable classification, tag model or protection logic. It does not prescribe opmon as an SC ingress path. Detailed deployment choices and unverified interfaces are marked for completion.
 
+Timing has its own protocol. Its reset and recovery contract exposes the reset operation and resulting board-state acknowledgement across the timing, DAPHNE, OPC UA and DAQ interfaces. Local recovery must remain reachable during an optical timing outage; releasing reset alone does not acknowledge recovered synchronization.
+
 ## Format and provenance
 
 The document class, logo, title/review page and section layout follow [`marroyav/daphne-icd`](https://github.com/marroyav/daphne-icd/tree/6c0b24542f9b2504037aa895250d1441ee209fd2). The original class attribution is retained. The physical CCM wording is copied from that repository's `sections/04_interfaces.tex`; it is identical in the pinned main and proposed-v8 revisions.
