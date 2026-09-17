@@ -1,6 +1,6 @@
 {
   "prepared": "2026-09-17",
-  "scope": "Control, configuration and published monitoring for DAPHNE (one shared 1 Gb Ethernet link per board; HD and VD), PDS Calibration Box and PDS PoF laser boxes. Data readout and optical timing transport excluded.",
+  "scope": "Control, configuration and published monitoring for DAPHNE (one shared 1 Gb Ethernet link per board; HD and VD), Light Calibration Module and PDS PoF laser boxes. Data readout and optical timing transport excluded.",
   "author_design_decisions": [
     "One board CCM Ethernet connection through switch to physical server; retain daphne-icd SFP baseline",
     "FD-VD: 1344 channels / 32 channels per board = 42 boards; FD-HD: 6000 / 40 = 150 boards",
@@ -11,8 +11,12 @@
     "SC publishes board readiness from current board-generated timing and recovery evidence",
     "Only the protocol architecture diagram is retained; no detailed variable inventory or optical timing/readout description",
     "Use DUNE-DAQ/daphne-os for daphne-server, Protobuf schemas, endpoint recovery documentation and runtime services.",
-    "Include the PDS Calibration Box and PDS PoF laser boxes in scope, physical/service placement and protocol requirements.",
-    "PDS provides detector and calibration hardware, firmware, native services and specifications. SC provides control/monitoring infrastructure and arbitrates access to detector controls and monitoring data. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector."
+    "Include the Light Calibration Module and PDS PoF laser boxes in scope, physical/service placement and protocol requirements.",
+    "PDS provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions. SC provides control/monitoring infrastructure and arbitrates access to detector controls and monitoring data. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector.",
+    "Section 2 is Physical interface; Section 3 is Protocols and services. Each contains separate DAPHNE, Light Calibration Module and PDS PoF laser box subsections. Each hardware system has its own service-location table and protocol description.",
+    "Use Light Calibration Module (LCM) throughout. State the control/monitoring inventory for LCMs and PoF laser boxes within their respective physical-interface subsections.",
+    "LCMs use the same timing protocol as DAPHNE. The timing-endpoint control/recovery requirements also apply over each LCM GbE link, through its own service and OPC UA adapter, with published acknowledgement, authorized SC recovery and LCM readiness.",
+    "PoF interacts with SC and DPS only. It has no DAQ client, availability subscription or other DAQ interface."
   ],
   "files": [
     {
@@ -118,14 +122,44 @@
       "file": "daphne-server/docs/endpoint-safety-contract.md",
       "sha256": "48617c8005748ce80c16646518865cc279942e665eb9ec47d5b1387ea1a94140",
       "source_branch": "fix/server-v05-register-coverage"
+    },
+    {
+      "reference": "R7",
+      "source": "https://lss.fnal.gov/archive/2024/poster/fermilab-poster-24-0322-lbnf.pdf",
+      "file": "fermilab-poster-24-0322-lbnf.pdf",
+      "sha256": "ecb76b86835242cd377728c3d073629d18aee26062a455eeaf35d8beeb3885a7",
+      "accessed": "2026-09-17",
+      "evidence": "Conclusion graphic: approximately 80 laser-box units for FD2."
     }
   ],
   "revision": "0.2",
   "implementation_proposals": [
     "Dedicated daphne-server Protobuf/ZeroMQ PUB/SUB/TCP publication endpoint feeding the external OPC UA server; schema and port require assignment and implementation qualification.",
-    "Calibration and PoF controller services connect through adapters in the SC-provided external OPC UA server; configuration/control request-response and published monitoring are requirements. Native protocols, box quantities, PoF controller placement/physical interface and the controller/DPS connection remain to be specified."
+    "Calibration and PoF controller services each have a system-specific OPC UA adapter in SC infrastructure; configuration/control request-response and published monitoring are requirements. Native protocols, PoF controller placement/physical interface and the controller/DPS connection remain to be specified."
   ],
   "source_notes": [
     "R2 specifies a dedicated 1 GbE SFP CCM link per LCM and cathode PoF power. The four-group responsibility assignment follows the author instruction of 2026-09-17. No implemented calibration/PoF native protocol or DPS connection is asserted."
-  ]
+  ],
+  "inventory": {
+    "daphne": {
+      "FD-VD": 42,
+      "FD-HD": 150,
+      "status": "design allocation",
+      "reference": "R2"
+    },
+    "light_calibration_module": {
+      "FD-VD": 8,
+      "FD-HD": 18,
+      "status": "planning quantities; current PDS confirmation pending",
+      "evidence": "Available local interface inventory; independent current PDS quantity release not verified",
+      "evidence_sha256": "955501e5c6b7bae882e937964af1bfca1fc94c1f331e4a7571dc6fb0ff7f16df"
+    },
+    "pof_laser_boxes": {
+      "FD-VD": 80,
+      "FD-HD": 0,
+      "status": "design allocation; installed mapping to be supplied by PDS",
+      "reference": "R7",
+      "note": "Poster gives approximately 80 FD-VD laser-box units; PoF is a VD cathode supply in R2."
+    }
+  }
 }

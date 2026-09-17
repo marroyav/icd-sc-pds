@@ -1,0 +1,21 @@
+\section{Interface release and verification}
+
+Each hardware system shall have an online interface specification and version
+record covering its firmware, services, clients, schemas, OPC UA model and
+endpoint/port allocation. Contracts shall define authentication, timeouts,
+queue limits, publication cadence and reconnect behavior. Configuration/control
+uses request/response; monitoring is published.
+
+\textbf{DAPHNE:} verify concurrent configuration and publication on the shared
+GbE link, HD/VD scales, subscriber reconnection and SC timing recovery with
+board-generated completion acknowledgement. Publication schemas and ports
+remain to be assigned.
+
+\textbf{Light Calibration Module:} verify configuration and sequence requests,
+command arbitration, published status, timing recovery and readiness,
+reconnection and inhibit acknowledgement.
+
+\textbf{PoF laser boxes:} verify optical-power commands, arbitration,
+published operating/protection status, reconnection and inhibit acknowledgement.
+
+The DAQ--PDS and DAQ--SC/DPS interface documents shall use these same contracts.

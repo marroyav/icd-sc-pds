@@ -1,0 +1,50 @@
+\section{Physical interface}
+
+\subsection{DAPHNE}
+\label{sec:physical-daphne}
+Each DAPHNE provides one dedicated 1\,GbE SFP connection for CCM, as specified
+in the DAQ--PDS ICD [R1, R2]. Its board services share this link:
+\begin{center}
+\textbf{DAPHNE Ethernet interface $\longleftrightarrow$ switch
+$\longleftrightarrow$ physical server.}
+\end{center}
+PDS supplies the fibres to its mini-rack patch panels; continuation and active
+switching are coordinated with DAQ and Technical Coordination [R1].
+
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Detector} & \textbf{PDS channels} & \textbf{Channels/board} & \textbf{DAPHNE boards} \\
+\midrule
+FD-VD & 1,344 & 32 & 42 \\
+FD-HD & 6,000 & 40 & 150 \\
+\bottomrule
+\end{tabular}
+\end{center}
+These are the detector design allocations [R2], with one CCM connection per
+board. FD-VD includes membrane and cathode modules; both use this CCM interface.
+
+
+The installation record shall identify board/switch/server ports, SFPs and
+patch routes. All DAPHNE CCM services share the board's GbE bandwidth.
+
+\subsection{Light Calibration Module}
+\label{sec:physical-calibration}
+\textbf{Inventory under control and monitoring:} 8 LCMs for FD-VD and 18 for
+FD-HD (planning quantities; PDS confirmation pending).
+
+Each Light Calibration Module (LCM) has a dedicated 1\,GbE
+SFP CCM connection [R2]: LCM Ethernet interface $\longleftrightarrow$ switch
+$\longleftrightarrow$ physical server. PDS shall specify the installed
+detector mapping, ports, media and patch routes.
+
+\subsection{PDS PoF laser boxes}
+\label{sec:physical-pof}
+\textbf{Inventory under control and monitoring:} 80 laser boxes for FD-VD
+(design allocation [R7]); none for FD-HD.
+
+Power-over-Fiber (PoF) supplies the FD-VD cathode modules [R2]. Each laser box
+connects through its laser controller to the switch and physical server.
+PDS shall specify the installed detector mapping, controller placement,
+Ethernet medium, rate, connector and patch routes. PDS and DPS shall define
+the physical controller/protection connection. These details remain open.

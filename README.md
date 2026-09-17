@@ -4,17 +4,18 @@ Manuel Arroyave · revision 0.2 · 17 September 2026 · draft for review.
 
 [Read the PDF](main.pdf) · [LaTeX source](main.tex)
 
-The document covers control, configuration and monitoring for DAPHNE, the PDS Calibration Box and the PDS Power-over-Fiber (PoF) laser boxes.
+The document covers control, configuration and monitoring for DAPHNE, the Light Calibration Module and the PDS Power-over-Fiber (PoF) laser boxes.
 
-- FD-VD: 1,344 channels, 32 per board, **42 boards**. FD-HD: 6,000 channels, 40 per board, **150 boards**.
-- PDS provides detector/calibration hardware, firmware, native services and specifications. SC provides control/monitoring infrastructure and data/control access arbitration. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector.
-- DAQ CCM requests run and timing-endpoint configuration through the configuration component in the SC-provided external OPC UA server. Hermes receives configuration over its separate UDP/IPBus endpoint.
-- Configuration/control uses request/response. `daphne-server` publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon. SC receives voltages, temperatures, fans, service status and versions.
-- SC can recover timing through the same configuration interface and publish board readiness.
-- Each DAPHNE and each Calibration Box (LCM) has its own 1 GbE CCM link. Calibration and PoF controllers have separate endpoints and adapters to the external OPC UA server. Their native protocols, box inventories and the PoF physical interface remain to be specified.
-- DAQ uses the PDS calibration service for settings and sequences; SC supplies arbitration, equipment control and monitoring. PoF control includes published operating/protection status and acknowledgement of protective inhibits.
+## Document structure
 
-DAQ data readout and optical timing transport are outside the scope. The single diagram shows service placement and configuration/publication paths. Detailed variable lists are not included.
+1. **Responsibilities:** PDS provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions; SC supplies control/monitoring infrastructure and access arbitration; DPS supplies protection infrastructure and detector protection; DAQ uses the detector.
+2. **Physical interface:** separate DAPHNE, Light Calibration Module and PoF subsections.
+3. **Protocols and services:** separate DAPHNE, Light Calibration Module and PoF subsections, each with its own service-location table and protocol description.
+4. **Interface release and verification.**
+
+DAPHNE covers 42 FD-VD boards (1,344 channels / 32) and 150 FD-HD boards (6,000 / 40), with one 1 GbE CCM link per board. Its OPC UA configuration/publication path, separate Hermes configuration service and SC timing recovery remain specified together. LCMs use the same timing protocol and recovery contract as DAPHNE, through their own service and OPC UA adapter. Remaining LCM and PoF native protocol specifications are recorded under their respective hardware systems. LCM planning inventory: 8 FD-VD and 18 FD-HD, pending current PDS confirmation. PoF design inventory: 80 FD-VD boxes; none for FD-HD. PoF interfaces with SC and DPS only; it has no DAQ interaction.
+
+DAQ data readout, optical timing transport and detailed variable lists are outside the scope. The single diagram describes DAPHNE protocols and services.
 
 The format and physical-interface baseline come from [daphne-icd](https://github.com/marroyav/daphne-icd/tree/6c0b24542f9b2504037aa895250d1441ee209fd2). Server and runtime sources use [DUNE-DAQ/daphne-os](https://github.com/DUNE-DAQ/daphne-os/tree/e31bdfbfcc177c06458a5a05189e91a3b17fc7d5). [Source provenance](references/source-manifest.json) pins the revisions and file hashes. Publication endpoints and SC recovery describe the target architecture; their deployment is not established by this document.
 

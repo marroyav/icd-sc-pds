@@ -1,13 +1,29 @@
-\section{Control, configuration and monitoring protocols}
+\section{Protocols and services}
 
-\subsection{Service architecture}
+\subsection{DAPHNE}
+\label{sec:services-daphne}
+
+\begin{center}\small
+\begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
+\toprule
+\textbf{Location} & \textbf{Services} \\
+\midrule
+DAPHNE board & \code{daphne-server} and ZeroMQ endpoints; local timing-endpoint access; Hermes IPBus/UDP configuration service. \\
+External physical server & SC-provided OPC UA server containing DAQ configuration, DAPHNE Protobuf/ZeroMQ client and monitoring subscriber. \\
+SC server infrastructure & Ignition, acting as an OPC UA client of the external server. \\
+DAQ server infrastructure & DAQ CCM client/opmon and the separate Hermes client. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The installation record shall identify service hosts and endpoints. OPC UA
+terminates on the external server.
 
 SC provides the OPC UA server and control arbitration. The server hosts DAQ
 configuration and forwards publications from
 \code{daphne-server}: equipment monitoring to Ignition; firmware counters,
 timing state and applied readout configuration to DAQ opmon.
-Hermes receives configuration over UDP/IPBus. Figure~\ref{fig:protocol} shows
-the DAPHNE path; box interfaces are defined in Section~\ref{sec:boxes}.
+Hermes receives configuration over UDP/IPBus.
 
 \begin{figure}[htbp]
 \centering
@@ -37,7 +53,7 @@ the DAPHNE path; box interfaces are defined in Section~\ref{sec:boxes}.
 \label{fig:protocol}
 \end{figure}
 
-\subsection{Configuration exchanges}
+\subsubsection{Configuration exchanges}
 
 DAQ CCM requests run-variable and timing-endpoint configuration through OPC UA.
 The server exchanges Protobuf
@@ -50,7 +66,7 @@ Hermes retains its independent IPBus/UDP configuration endpoint, reference
 UDP 50001 [R6], outside the OPC UA server. Both services share the board
 connection and gateware lifecycle.
 
-\subsection{Published monitoring}
+\subsubsection{Published monitoring}
 
 Monitoring shall be published periodically or on change, without a client
 request for each update. Only configuration and control operations, including
@@ -80,7 +96,8 @@ through the OPC UA server without an opmon dependency. Publications shall
 carry source identity, time, sequence and validity. Subscribers shall detect
 stale or missing updates and obtain a current snapshot after reconnecting.
 
-\subsection{Timing-endpoint control and recovery over GbE}
+\subsubsection{Timing-endpoint control and recovery over GbE}
+\label{sec:timing-recovery}
 
 Timing-endpoint configuration follows the DAQ configuration path:
 \begin{center}
@@ -103,43 +120,66 @@ endpoint readiness and valid synchronization [R4]. Reset release alone is
 insufficient. Missing or stale required publications shall withhold readiness.
 DAQ consumes the published readiness before resuming data taking.
 
-\subsection{PDS Calibration Box and PoF laser boxes}
-\label{sec:boxes}
+\subsection{Light Calibration Module}
+\label{sec:services-calibration}
 
-Each box controller shall expose configuration/control request/response and
-published monitoring through its native service and an adapter in the external
-OPC UA server. Ignition subscribes to equipment monitoring; DAQ subscribes to
-the readiness and operating status needed for data taking.
+\begin{center}\small
+\begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
+\toprule
+\textbf{Location} & \textbf{Calibration services} \\
+\midrule
+Light Calibration Module & PDS-provided LCM controller firmware and native calibration service. \\
+SC physical server & Calibration OPC UA adapter and command arbitration. \\
+SC infrastructure & Ignition client for equipment control and monitoring. \\
+DAQ infrastructure & Client of the calibration interface for settings, sequences and status. \\
+\bottomrule
+\end{tabular}
+\end{center}
+SC provides equipment power/service control and monitoring. The installation
+record shall identify each service host and endpoint.
 
-\textbf{Calibration Box (LCM).} PDS supplies the calibration hardware, firmware
-and service. DAQ uses that service to request calibration settings and sequence
-execution. SC provides command arbitration, equipment power/service control
-and monitoring of health, alarms and calibration status. The OPC UA interface
-shall expose protective inhibit actions.
+Calibration requests and responses pass through the calibration OPC UA adapter
+to the LCM native service. That service shall publish equipment health,
+calibration status and readiness through OPC UA subscriptions to SC and DAQ.
+The control interface shall expose protective inhibit actions.
 
-\textbf{PoF laser boxes.} SC controls optical-power operation and receives
-controller health, operating state, permits and inhibit status. The interface
-shall expose DPS protection status and give protective inhibits priority over
-operating commands. PDS and DPS shall define the controller/DPS connection and its
-acknowledgement behavior.
+PDS shall specify the native control protocol, transport, ports, command acknowledgements,
+monitoring schema and compatible versions. These details remain open.
 
-PDS shall publish each controller's native protocol, transport, ports, command
-acknowledgements, monitoring schema and compatible versions. These details
-remain to be specified for both box types; the DAPHNE Protobuf/ZeroMQ contract
-applies only to DAPHNE.
+\subsubsection{Timing-endpoint control and recovery over GbE}
 
-\clearpage
-\subsection{Interface release and verification}
+LCMs use the same timing protocol as DAPHNE. The requirements in
+Section~\ref{sec:timing-recovery} apply to each LCM over its 1\,GbE CCM link,
+through the LCM service and OPC UA adapter: DAQ configuration, authorized SC
+reset/recovery, published acknowledgement and endpoint state, and command
+arbitration. Recovery shall remain available during a timing outage.
+SC shall publish LCM readiness from fresh timing and recovery evidence;
+DAQ consumes it before calibration or data taking.
 
-Each release shall publish compatible versions and interface specifications
-online: schemas, OPC UA model, Hermes and box-controller interfaces, and
-endpoint/port allocation. Contracts shall define authentication, timeouts,
-queue limits, update cadence and reconnect behavior. DAPHNE publication
-schemas and ports remain to be assigned.
+\subsection{PDS PoF laser boxes}
+\label{sec:services-pof}
 
-Verification shall cover concurrent configuration and publication on the shared
-link, the HD and VD installation scales, subscriber loss/reconnection, and SC
-timing recovery with a board-generated completion acknowledgement. Box
-verification shall cover command ownership, published status, reconnect
-behavior and inhibit acknowledgement. The
-DAQ--PDS and DAQ--SC/DPS interface documents shall use this same CCM contract.
+\begin{center}\small
+\begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
+\toprule
+\textbf{Location} & \textbf{PoF services} \\
+\midrule
+Laser controller & PDS-provided firmware and native optical-power control service; controller placement to be specified. \\
+SC physical server & PoF OPC UA adapter and command arbitration. \\
+SC infrastructure & Ignition client for optical-power control and monitoring. \\
+DPS infrastructure & Detector-protection service and controller inhibit interface; placement to be specified. \\
+\bottomrule
+\end{tabular}
+\end{center}
+The installation record shall identify each service host and endpoint.
+
+Optical-power requests and responses pass through the PoF OPC UA adapter
+to the laser-controller service. That service shall publish health, operating
+state, permits and inhibit status to SC through OPC UA subscriptions.
+PoF has no DAQ interface.
+
+The interface shall expose DPS protection status and give protective inhibits
+priority over operating commands. PDS and DPS shall specify the protection
+protocol and acknowledgement behavior. PDS shall specify the native control
+protocol, transport, ports, monitoring schema and compatible versions.
+These details remain open.
