@@ -4,10 +4,10 @@
   "author_design_decisions": [
     "One board CCM Ethernet connection through switch to physical server; retain daphne-icd SFP baseline",
     "FD-VD: 1344 channels / 32 channels per board = 42 boards; FD-HD: 6000 / 40 = 150 boards",
-    "DAQ CCM requests run-variable configuration and timing-endpoint reset through the component integrated into the SC-provided external OPC UA server; Hermes receives configuration on its separate IPBus/UDP endpoint; it does not publish counters",
+    "DAQ CCM requests run-variable and local timing-endpoint configuration through the component integrated into the SC-provided external OPC UA server; Hermes receives configuration on its separate IPBus/UDP endpoint; it does not publish counters",
     "Configuration and control use request/response; all monitoring is published",
     "daphne-server publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon; SC monitors voltages, temperatures, fans, service status and versions; SC and opmon subscribe independently to their respective monitoring data through the OPC UA bridge",
-    "Timing configuration and monitoring use two paths: GbE carries endpoint reset, endpoint status and timing-SFP I2C status; DTS optical fibre carries the remaining timing configuration and monitoring such as alignment status. Endpoint reset precedes DTS configuration. Both DAQ and SC access reset and GbE monitoring through OPC UA; reset uses request/response and monitoring is published. Delivery of DTS readiness evidence to SC remains to be specified.",
+    "Timing configuration and monitoring use two paths: GbE exposes the local controls defined by the daphne-os endpoint service, including reset and endpoint address, plus endpoint status and timing-SFP I2C status; DTS optical fibre carries the remaining timing configuration and monitoring such as alignment status. Endpoint reset precedes DTS configuration. Both DAQ and SC access these controls and GbE monitoring through OPC UA; configuration/control uses request/response and monitoring is published. Delivery of DTS readiness evidence to SC remains to be specified.",
     "SC publishes board readiness from current board-generated timing and recovery evidence",
     "Only the protocol architecture diagram is retained; no detailed variable inventory or optical transport/readout specification. The timing section identifies the split GbE/DTS configuration and monitoring paths.",
     "Use DUNE-DAQ/daphne-os for daphne-server, Protobuf schemas, endpoint recovery documentation and runtime services.",
@@ -15,7 +15,7 @@
     "PDS provides photon detector and light calibration hardware, firmware, native services, detector specifications and detector operating restrictions. SC provides control/monitoring infrastructure and arbitrates access to detector controls and monitoring data. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector.",
     "Section 2 is Physical interface; Section 3 is Protocols and services. Each contains separate DAPHNE, Light Calibration Module and PDS PoF laser box subsections. Each hardware system has its own service-location table and protocol description.",
     "Use Light Calibration Module (LCM) throughout. State the control/monitoring inventory for LCMs and PoF laser boxes within their respective physical-interface subsections.",
-    "LCMs use the same timing protocol and split configuration/monitoring paths as DAPHNE. Both DAQ and SC access endpoint reset and GbE monitoring through the LCM service/OPC UA adapter; the same acknowledgement, arbitration, access during timing outages and readiness requirements apply.",
+    "LCMs use the same timing protocol and split configuration/monitoring paths as DAPHNE. Both DAQ and SC access local endpoint configuration and GbE monitoring through the LCM service/OPC UA adapter; the same acknowledgement, arbitration, access during timing outages and readiness requirements apply.",
     "PoF interacts with SC and DPS only. It has no DAQ client, availability subscription or other DAQ interface.",
     "The summary explicitly includes Detector Protection System interfaces and its protection infrastructure and detector protection role.",
     "Use EDMS ID 3309688, matching the draft, as instructed by the author.",
@@ -136,6 +136,30 @@
       "sha256": "ecb76b86835242cd377728c3d073629d18aee26062a455eeaf35d8beeb3885a7",
       "accessed": "2026-09-17",
       "evidence": "Conclusion graphic: approximately 80 laser-box units for FD2."
+    },
+    {
+      "reference": "R4",
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
+      "file": "daphne-server/srcs/Endpoint.cpp",
+      "sha256": "1ce2ec587f89fc5d14d215881a2b83922dfc3f25999328ad37b5bf9eb9219299",
+      "source_branch": "fix/server-v05-register-coverage"
+    },
+    {
+      "reference": "R5",
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
+      "file": "petalinux/meta-daphne/recipes-core/daphne-services/files/endpoint.service",
+      "sha256": "8a0480cb161caca9a9abb1cdb31e04f0b13e6529a6ba8b87373e7f98bf38037b",
+      "source_branch": "fix/server-v05-register-coverage"
+    },
+    {
+      "reference": "R5",
+      "source": "https://github.com/DUNE-DAQ/daphne-os",
+      "revision": "e31bdfbfcc177c06458a5a05189e91a3b17fc7d5",
+      "file": "petalinux/meta-daphne/recipes-core/daphne-services/files/daphne-endpoint-init.py",
+      "sha256": "54a74fab97b0e53700aa91c6f977ccd743c2a5caae5ca357dec0740627ff6340",
+      "source_branch": "fix/server-v05-register-coverage"
     }
   ],
   "revision": "0.2",
