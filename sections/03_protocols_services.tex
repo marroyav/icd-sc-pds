@@ -164,22 +164,23 @@ DAQ consumes it before calibration or data taking.
 \toprule
 \textbf{Location} & \textbf{PoF services} \\
 \midrule
-Laser controller & PDS-provided firmware and native optical-power control service; controller placement to be specified. \\
-SC physical server & PoF OPC UA adapter and command arbitration. \\
-SC infrastructure & Ignition client for optical-power control and monitoring. \\
-DPS infrastructure & Detector-protection service and controller inhibit interface; placement to be specified. \\
+Compact PLC; placement to be specified & PoF control and monitoring logic. \\
+Server location undecided & OPC UA server software for the compact PLC; implementation and driver to be selected. \\
+SC infrastructure & Ignition OPC UA client for PoF control and monitoring. \\
+DPS infrastructure & Detector protection; PLC/protection connection to be defined. \\
 \bottomrule
 \end{tabular}
 \end{center}
-The installation record shall identify each service host and endpoint.
+SC and PDS shall design the compact PLC system and identify and test its
+OPC UA server software. PDS provides PLC hardware and cables; SC integrates
+control and monitoring into Ignition.
 
-Optical-power requests and responses pass through the PoF OPC UA adapter
-to the laser-controller service. That service shall publish health, operating
-state, permits and inhibit status to SC through OPC UA subscriptions.
-PoF has no DAQ interface.
+The PLC-to-OPC-UA protocol, driver, transport, ports and server location are
+undecided. The selected implementation shall provide configuration/control
+request/response and publish monitoring to Ignition through OPC UA
+subscriptions. PoF has no DAQ interface.
 
 The interface shall expose DPS protection status and give protective inhibits
-priority over operating commands. PDS and DPS shall specify the protection
-protocol and acknowledgement behavior. PDS shall specify the native control
-protocol, transport, ports, monitoring schema and compatible versions.
-These details remain open.
+priority over operating commands. PDS and DPS shall define the protection
+connection and acknowledgement behavior. The interface release shall specify
+the monitoring schema, compatible versions and service endpoints.

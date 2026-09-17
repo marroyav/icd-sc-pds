@@ -19,7 +19,8 @@
     "PoF interacts with SC and DPS only. It has no DAQ client, availability subscription or other DAQ interface.",
     "The summary explicitly includes Detector Protection System interfaces and its protection infrastructure and detector protection role.",
     "Use EDMS ID 3309688, matching the draft, as instructed by the author.",
-    "SC assesses and publishes detector status. DAQ shall check that status and complete a handshake with Operations before data taking; DAQ configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS."
+    "SC assesses and publishes detector status. DAQ shall check that status and complete a handshake with Operations before data taking; DAQ configures the detector, collects detector data and provides calibration datasets agreed in advance with PDS.",
+    "PoF uses a compact PLC and OPC UA integration with Ignition. PLC-to-OPC-UA protocol, driver, transport, ports and server placement remain undecided. Do not assert a separate PoF native service or an adapter hosted on an SC physical server."
   ],
   "files": [
     {
@@ -138,7 +139,7 @@
   "revision": "0.2",
   "implementation_proposals": [
     "Dedicated daphne-server Protobuf/ZeroMQ PUB/SUB/TCP publication endpoint feeding the external OPC UA server; schema and port require assignment and implementation qualification.",
-    "Calibration and PoF controller services each have a system-specific OPC UA adapter in SC infrastructure; configuration/control request-response and published monitoring are requirements. Native protocols, PoF controller placement/physical interface and the controller/DPS connection remain to be specified."
+    "LCM control service has an OPC UA adapter in SC infrastructure; configuration/control request-response and published monitoring are requirements. LCM native control protocol details remain to be specified."
   ],
   "source_notes": [
     "R2 specifies a dedicated 1 GbE SFP CCM link per LCM and cathode PoF power. The four-group responsibility assignment follows the author instruction of 2026-09-17. No implemented calibration/PoF native protocol or DPS connection is asserted."
@@ -165,5 +166,26 @@
       "note": "Poster gives approximately 80 FD-VD laser-box units; PoF is a VD cathode supply in R2."
     }
   },
-  "edms_id": "3309688"
+  "edms_id": "3309688",
+  "pof_interface_basis": {
+    "evidence_sha256": "955501e5c6b7bae882e937964af1bfca1fc94c1f331e4a7571dc6fb0ff7f16df",
+    "sections": [
+      "2 Hardware Interfaces",
+      "3.2 OPC-UA Servers for PoF laser units"
+    ],
+    "established_design_intent": [
+      "Compact PLC for PoF control/monitoring; SC and PDS joint design",
+      "PDS provides PLC hardware and cables",
+      "SC and PDS identify/test OPC UA server software for the PLC",
+      "SC integrates PoF into Ignition"
+    ],
+    "undecided": [
+      "PLC-to-OPC-UA protocol",
+      "Driver",
+      "Transport and ports",
+      "OPC UA server host/location",
+      "PLC/protection connection"
+    ],
+    "status": "Design intent and author clarification; no implemented PLC/OPC UA architecture verified"
+  }
 }
