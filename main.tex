@@ -37,25 +37,27 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-This document defines DAPHNE control, configuration and monitoring (CCM)
-between PDS, DAQ and Slow Controls over each board's shared 1\,Gb Ethernet
-connection. DAQ CCM controls run variables and timing-endpoint settings through
-the configuration component integrated
-into the external OPC UA server. SC can use that path to recover timing and
-publish board readiness. Hermes remains a separate service on the same link.
+This document defines control, configuration and monitoring (CCM) interfaces
+for DAPHNE, the PDS Calibration Box and the PDS Power-over-Fiber (PoF) laser
+boxes between PDS, DAQ, Slow Controls and DPS. Each DAPHNE uses one shared
+1\,Gb Ethernet connection. DAQ CCM requests run and timing-endpoint
+configuration through the component integrated into the SC-provided external
+OPC UA server. SC can use that path to recover timing and publish board
+readiness. Hermes remains a separate service on the same link.
 
 Configuration uses request/response; monitoring is published. DAQ opmon
 receives firmware counters, timing state and applied readout configuration
 from \code{daphne-server} through OPC UA.
 SC monitors voltages, temperatures, fans, service
 status and versions. The inventory comprises 42 FD-VD boards and 150 FD-HD
-boards. DAQ data readout and optical timing transport are outside this scope.
+boards. Calibration and PoF controllers expose equipment control and published
+monitoring through their own interfaces to OPC UA. DAQ data readout and optical
+timing transport are outside this scope.
 \end{abstract}
 \vfill
 \makereviewtable
 \clearpage
 \input{sections/01_physical_layer.tex}
-\clearpage
 \input{sections/02_protocols.tex}
 \input{sections/references.tex}
 \end{document}

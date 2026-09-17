@@ -1,16 +1,18 @@
 {
   "prepared": "2026-09-17",
-  "scope": "DAPHNE control, configuration and published monitoring over one shared 1 Gb Ethernet link; HD and VD. Data readout and optical timing transport excluded.",
+  "scope": "Control, configuration and published monitoring for DAPHNE (one shared 1 Gb Ethernet link per board; HD and VD), PDS Calibration Box and PDS PoF laser boxes. Data readout and optical timing transport excluded.",
   "author_design_decisions": [
     "One board CCM Ethernet connection through switch to physical server; retain daphne-icd SFP baseline",
     "FD-VD: 1344 channels / 32 channels per board = 42 boards; FD-HD: 6000 / 40 = 150 boards",
-    "DAQ CCM controls run variables and timing-endpoint settings through the configuration component integrated into the external OPC UA server; Hermes receives configuration on its separate IPBus/UDP endpoint; it does not publish counters",
+    "DAQ CCM requests run-variable and timing-endpoint configuration through the component integrated into the SC-provided external OPC UA server; Hermes receives configuration on its separate IPBus/UDP endpoint; it does not publish counters",
     "Configuration and control use request/response; all monitoring is published",
     "daphne-server publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon; SC monitors voltages, temperatures, fans, service status and versions",
     "Local timing-endpoint configuration and monitoring traverse the same GbE link; DAQ configuration path exposes recovery to SC",
     "SC publishes board readiness from current board-generated timing and recovery evidence",
     "Only the protocol architecture diagram is retained; no detailed variable inventory or optical timing/readout description",
-    "Use DUNE-DAQ/daphne-os for daphne-server, Protobuf schemas, endpoint recovery documentation and runtime services."
+    "Use DUNE-DAQ/daphne-os for daphne-server, Protobuf schemas, endpoint recovery documentation and runtime services.",
+    "Include the PDS Calibration Box and PDS PoF laser boxes in scope, physical/service placement and protocol requirements.",
+    "PDS provides detector and calibration hardware, firmware, native services and specifications. SC provides control/monitoring infrastructure and arbitrates access to detector controls and monitoring data. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector."
   ],
   "files": [
     {
@@ -120,6 +122,10 @@
   ],
   "revision": "0.2",
   "implementation_proposals": [
-    "Dedicated daphne-server Protobuf/ZeroMQ PUB/SUB/TCP publication endpoint feeding the external OPC UA server; schema and port require assignment and implementation qualification."
+    "Dedicated daphne-server Protobuf/ZeroMQ PUB/SUB/TCP publication endpoint feeding the external OPC UA server; schema and port require assignment and implementation qualification.",
+    "Calibration and PoF controller services connect through adapters in the SC-provided external OPC UA server; configuration/control request-response and published monitoring are requirements. Native protocols, box quantities, PoF controller placement/physical interface and the controller/DPS connection remain to be specified."
+  ],
+  "source_notes": [
+    "R2 specifies a dedicated 1 GbE SFP CCM link per LCM and cathode PoF power. The four-group responsibility assignment follows the author instruction of 2026-09-17. No implemented calibration/PoF native protocol or DPS connection is asserted."
   ]
 }

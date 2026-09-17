@@ -4,12 +4,15 @@ Manuel Arroyave · revision 0.2 · 17 September 2026 · draft for review.
 
 [Read the PDF](main.pdf) · [LaTeX source](main.tex)
 
-The document covers DAPHNE control, configuration and monitoring over the shared 1 Gb Ethernet connection.
+The document covers control, configuration and monitoring for DAPHNE, the PDS Calibration Box and the PDS Power-over-Fiber (PoF) laser boxes.
 
 - FD-VD: 1,344 channels, 32 per board, **42 boards**. FD-HD: 6,000 channels, 40 per board, **150 boards**.
-- DAQ CCM controls run variables and timing-endpoint settings through the configuration component in the external OPC UA server. Hermes receives configuration over its separate UDP/IPBus endpoint.
+- PDS provides detector/calibration hardware, firmware, native services and specifications. SC provides control/monitoring infrastructure and data/control access arbitration. DPS provides protection infrastructure and detector protection. DAQ is a user of the detector.
+- DAQ CCM requests run and timing-endpoint configuration through the configuration component in the SC-provided external OPC UA server. Hermes receives configuration over its separate UDP/IPBus endpoint.
 - Configuration/control uses request/response. `daphne-server` publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon. SC receives voltages, temperatures, fans, service status and versions.
 - SC can recover timing through the same configuration interface and publish board readiness.
+- Each DAPHNE and each Calibration Box (LCM) has its own 1 GbE CCM link. Calibration and PoF controllers have separate endpoints and adapters to the external OPC UA server. Their native protocols, box inventories and the PoF physical interface remain to be specified.
+- DAQ uses the PDS calibration service for settings and sequences; SC supplies arbitration, equipment control and monitoring. PoF control includes published operating/protection status and acknowledgement of protective inhibits.
 
 DAQ data readout and optical timing transport are outside the scope. The single diagram shows service placement and configuration/publication paths. Detailed variable lists are not included.
 

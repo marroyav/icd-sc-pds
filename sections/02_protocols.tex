@@ -2,10 +2,12 @@
 
 \subsection{Service architecture}
 
-The OPC UA server hosts DAQ configuration and forwards publications from
+SC provides the OPC UA server and control arbitration. The server hosts DAQ
+configuration and forwards publications from
 \code{daphne-server}: equipment monitoring to Ignition; firmware counters,
 timing state and applied readout configuration to DAQ opmon.
-Hermes receives configuration over UDP/IPBus.
+Hermes receives configuration over UDP/IPBus. Figure~\ref{fig:protocol} shows
+the DAPHNE path; box interfaces are defined in Section~\ref{sec:boxes}.
 
 \begin{figure}[htbp]
 \centering
@@ -31,13 +33,13 @@ Hermes receives configuration over UDP/IPBus.
 \draw[both] (hermesclient.south) -- node[right,align=left,font=\footnotesize]
  {IPBus / UDP\\configuration} (hermes.north);
 \end{tikzpicture}
-\caption{CCM configuration and published monitoring.}
+\caption{DAPHNE CCM configuration and published monitoring.}
 \label{fig:protocol}
 \end{figure}
 
 \subsection{Configuration exchanges}
 
-DAQ CCM controls run variables and timing-endpoint settings through OPC UA.
+DAQ CCM requests run-variable and timing-endpoint configuration through OPC UA.
 The server exchanges Protobuf
 messages over ZeroMQ and TCP using a DEALER client and the board's ROUTER
 endpoint [R3, R4].
@@ -55,7 +57,7 @@ request for each update. Only configuration and control operations, including
 reset/recovery commands, use application request/response. Local hardware
 sampling is performed by the producing service.
 
-The proposed publication transport is Protobuf over ZeroMQ PUB/SUB over TCP,
+The proposed DAPHNE publication transport is Protobuf over ZeroMQ PUB/SUB over TCP,
 using endpoints separate from configuration. The OPC UA server subscribes to
 \code{daphne-server} publications and distributes them through OPC UA
 subscriptions. Opmon monitoring follows the path
@@ -93,7 +95,7 @@ A reset request shall identify its target and receive an execution response.
 The board shall publish reset assertion, release and the resulting endpoint
 state so that both clients can acknowledge the same recovery operation.
 Recovery access shall remain available while timing is unavailable. Concurrent
-DAQ and SC commands shall be serialized.
+DAQ and SC commands shall be serialized by SC's control infrastructure.
 
 SC shall determine and publish \emph{board ready for data taking} from the
 agreed readiness conditions, including completed reset, restored clocks,
@@ -101,15 +103,43 @@ endpoint readiness and valid synchronization [R4]. Reset release alone is
 insufficient. Missing or stale required publications shall withhold readiness.
 DAQ consumes the published readiness before resuming data taking.
 
+\subsection{PDS Calibration Box and PoF laser boxes}
+\label{sec:boxes}
+
+Each box controller shall expose configuration/control request/response and
+published monitoring through its native service and an adapter in the external
+OPC UA server. Ignition subscribes to equipment monitoring; DAQ subscribes to
+the readiness and operating status needed for data taking.
+
+\textbf{Calibration Box (LCM).} PDS supplies the calibration hardware, firmware
+and service. DAQ uses that service to request calibration settings and sequence
+execution. SC provides command arbitration, equipment power/service control
+and monitoring of health, alarms and calibration status. The OPC UA interface
+shall expose protective inhibit actions.
+
+\textbf{PoF laser boxes.} SC controls optical-power operation and receives
+controller health, operating state, permits and inhibit status. The interface
+shall expose DPS protection status and give protective inhibits priority over
+operating commands. PDS and DPS shall define the controller/DPS connection and its
+acknowledgement behavior.
+
+PDS shall publish each controller's native protocol, transport, ports, command
+acknowledgements, monitoring schema and compatible versions. These details
+remain to be specified for both box types; the DAPHNE Protobuf/ZeroMQ contract
+applies only to DAPHNE.
+
+\clearpage
 \subsection{Interface release and verification}
 
-Each release shall publish online the compatible server/client versions,
-Protobuf schemas, OPC UA model, Hermes interface and endpoint/port allocation.
-The configuration and publication contracts shall specify authentication,
-timeouts, queue limits, update cadence and reconnect behavior. Publication
+Each release shall publish compatible versions and interface specifications
+online: schemas, OPC UA model, Hermes and box-controller interfaces, and
+endpoint/port allocation. Contracts shall define authentication, timeouts,
+queue limits, update cadence and reconnect behavior. DAPHNE publication
 schemas and ports remain to be assigned.
 
 Verification shall cover concurrent configuration and publication on the shared
 link, the HD and VD installation scales, subscriber loss/reconnection, and SC
-timing recovery with a board-generated completion acknowledgement. The
+timing recovery with a board-generated completion acknowledgement. Box
+verification shall cover command ownership, published status, reconnect
+behavior and inhibit acknowledgement. The
 DAQ--PDS and DAQ--SC/DPS interface documents shall use this same CCM contract.
