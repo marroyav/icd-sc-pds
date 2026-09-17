@@ -6,64 +6,63 @@
 \begin{center}\small
 \begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
 \toprule
-\textbf{Location} & \textbf{Services} \\
+\textbf{Location} & \textbf{Service chain} \\
 \midrule
-DAPHNE board & \code{daphne-server} and ZeroMQ endpoints; local timing-endpoint access; Hermes IPBus/UDP configuration service. \\
-External physical server & SC-provided OPC UA server containing DAQ configuration, DAPHNE Protobuf/ZeroMQ client and monitoring subscriber. \\
-SC server infrastructure & Ignition, acting as an OPC UA client of the external server. \\
-DAQ server infrastructure & DAQ CCM client/opmon and the separate Hermes client. \\
+DAPHNE & AXI / OS $\rightarrow$ \code{daphne-server} $\rightarrow$ ZMQ. \\
+SC bridge server & ZMQ client $\rightarrow$ OPC UA bridge. \\
+SC server & OPC UA client $\rightarrow$ Ignition. \\
+DAQ server & DAQ CCM client/opmon; separate Hermes configuration client. \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The installation record shall identify service hosts and endpoints. OPC UA
-terminates on the external server.
-
-SC provides the OPC UA server and control arbitration. The server hosts DAQ
-configuration and forwards publications from
-\code{daphne-server}: equipment monitoring to Ignition; firmware counters,
-timing state and applied readout configuration to DAQ opmon.
-Hermes receives configuration over UDP/IPBus.
+The OPC UA bridge runs on the SC bridge server and includes DAQ configuration
+and control arbitration. Its ZMQ client receives \code{daphne-server}
+publications; the bridge exposes them to the SC server's OPC UA client and
+to DAQ opmon. The SC server hosts Ignition. Hermes remains a separate DAPHNE
+service receiving configuration over UDP/IPBus. The installation record shall
+identify each service host and endpoint.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
-\node[box,text width=29mm] (ignition) at (0,0) {Ignition\\SC client};
+\node[box,text width=37mm] (ignition) at (0,0)
+ {SC server\\OPC UA client\\$\rightarrow$ Ignition};
 \node[box,text width=32mm] (daq) at (5.0,0) {DAQ CCM client\\opmon subscriber};
 \node[box,text width=35mm] (hermesclient) at (10.7,0)
  {DAQ Hermes\\configuration client};
 \node[box,text width=75mm,minimum height=19mm] (ua) at (2.5,-2.3)
- {External OPC UA server\\Integrated DAQ configuration\\Protobuf / ZeroMQ client and subscriber};
+ {SC bridge server\\ZMQ client $\rightarrow$ OPC UA bridge\\Integrated DAQ configuration};
 \node[box,text width=49mm,minimum height=18mm] (daphne) at (2.5,-5.8)
- {Board-side daphne-server\\Configuration endpoint\\Monitoring publisher};
+ {DAPHNE\\AXI / OS $\rightarrow$ \code{daphne-server}\\$\rightarrow$ ZMQ};
 \node[box,text width=37mm,minimum height=18mm] (hermes) at (10.7,-5.8)
  {Board-side Hermes\\IPBus / UDP\\Configuration endpoint};
 \node[draw=dunegreen,dashed,rounded corners,fit=(daphne)(hermes),inner sep=8pt,
  label={[font=\footnotesize,text=dunegreen]below:One DAPHNE board; one shared 1\,Gb Ethernet CCM connection}] {};
 \draw[both] (ignition) -- node[left,font=\footnotesize]{OPC UA} (ignition |- ua.north);
 \draw[both] (daq) -- node[right,font=\footnotesize]{OPC UA} (daq |- ua.north);
-\draw[both] ([xshift=-11mm]ua.south) -- node[left,align=right,font=\footnotesize]
+\draw[both] ([xshift=-11mm]ua.south) -- node[left,align=right,font=\footnotesize,fill=white,inner sep=2pt]
  {Configuration\\request/response} ([xshift=-11mm]daphne.north);
 \draw[flow,draw=dunegreen] ([xshift=11mm]daphne.north) -- node[right,align=left,font=\footnotesize,fill=white,inner sep=2pt]
  {Published\\monitoring} ([xshift=11mm]ua.south);
 \draw[both] (hermesclient.south) -- node[right,align=left,font=\footnotesize]
  {IPBus / UDP\\configuration} (hermes.north);
 \end{tikzpicture}
-\caption{DAPHNE CCM configuration and published monitoring.}
+\caption{DAPHNE service locations and protocol paths.}
 \label{fig:protocol}
 \end{figure}
 
 \subsubsection{Configuration exchanges}
 
-DAQ CCM requests run-variable and timing-endpoint configuration through OPC UA.
-The server exchanges Protobuf
+DAQ CCM requests run-variable and timing-endpoint configuration through the
+OPC UA bridge. The ZMQ client on the SC bridge server exchanges Protobuf
 messages over ZeroMQ and TCP using a DEALER client and the board's ROUTER
 endpoint [R3, R4].
 The reference port is TCP 40001 [R5]. Correlated responses shall distinguish
 acceptance, completion and failure.
 
 Hermes retains its independent IPBus/UDP configuration endpoint, reference
-UDP 50001 [R6], outside the OPC UA server. Both services share the board
+UDP 50001 [R6], outside the OPC UA bridge. Both services share the board
 connection and gateware lifecycle.
 
 \subsubsection{Published monitoring}
@@ -74,17 +73,16 @@ reset/recovery commands, use application request/response. Local hardware
 sampling is performed by the producing service.
 
 The proposed DAPHNE publication transport is Protobuf over ZeroMQ PUB/SUB over TCP,
-using endpoints separate from configuration. The OPC UA server subscribes to
-\code{daphne-server} publications and distributes them through OPC UA
-subscriptions. Opmon monitoring follows the path
-\code{daphne-server} $\rightarrow$ OPC UA server $\rightarrow$ DAQ opmon.
+using endpoints separate from configuration. The ZMQ client on the SC bridge
+server subscribes to \code{daphne-server} publications. The OPC UA bridge
+distributes them through OPC UA subscriptions to the SC server and DAQ opmon.
 
 \begin{center}\small
 \begin{tabular}{L{0.25\textwidth}L{0.68\textwidth}}
 \toprule
 \textbf{Consumer} & \textbf{Monitoring responsibility} \\
 \midrule
-DAQ opmon & Firmware counters, timing state and applied data-readout configuration, published by \code{daphne-server} through OPC UA. \\
+DAQ opmon & Firmware counters, timing state and applied data-readout configuration, published by \code{daphne-server} through the OPC UA bridge. \\
 SC / Ignition & Voltages, temperatures, fans, service status and software/firmware versions. \\
 SC and DAQ & Timing-endpoint condition, reset/recovery progress and board readiness. \\
 \bottomrule
@@ -92,7 +90,7 @@ SC and DAQ & Timing-endpoint condition, reset/recovery progress and board readin
 \end{center}
 
 Opmon shall not acquire voltage monitoring. SC receives equipment monitoring
-through the OPC UA server without an opmon dependency. Publications shall
+through the OPC UA bridge without an opmon dependency. Publications shall
 carry source identity, time, sequence and validity. Subscribers shall detect
 stale or missing updates and obtain a current snapshot after reconnecting.
 
@@ -101,8 +99,8 @@ stale or missing updates and obtain a current snapshot after reconnecting.
 
 Timing-endpoint configuration follows the DAQ configuration path:
 \begin{center}
-DAQ $\longleftrightarrow$ OPC UA server $\longleftrightarrow$
-DAPHNE service $\longleftrightarrow$ local timing endpoint.
+DAQ $\longleftrightarrow$ OPC UA bridge $\longleftrightarrow$
+\code{daphne-server} $\longleftrightarrow$ local timing endpoint.
 \end{center}
 The same interface shall expose reset and recovery to authorized SC clients.
 Timing monitoring shall be published over the board's GbE connection and
