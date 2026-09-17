@@ -89,9 +89,9 @@ SC and DAQ & Timing-endpoint condition, reset/recovery progress and board readin
 \end{tabular}
 \end{center}
 
-Opmon shall not acquire voltage monitoring. SC receives equipment monitoring
-through the OPC UA bridge without an opmon dependency. Publications shall
-carry source identity, time, sequence and validity. Subscribers shall detect
+SC and opmon subscribe independently to their respective monitoring data
+through the OPC UA bridge. Publications shall carry source identity, time,
+sequence and validity. Subscribers shall detect
 stale or missing updates and obtain a current snapshot after reconnecting.
 
 \subsubsection{Timing-endpoint control and recovery over GbE}

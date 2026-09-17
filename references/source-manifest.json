@@ -6,7 +6,7 @@
     "FD-VD: 1344 channels / 32 channels per board = 42 boards; FD-HD: 6000 / 40 = 150 boards",
     "DAQ CCM requests run-variable and timing-endpoint configuration through the component integrated into the SC-provided external OPC UA server; Hermes receives configuration on its separate IPBus/UDP endpoint; it does not publish counters",
     "Configuration and control use request/response; all monitoring is published",
-    "daphne-server publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon; SC monitors voltages, temperatures, fans, service status and versions",
+    "daphne-server publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon; SC monitors voltages, temperatures, fans, service status and versions; SC and opmon subscribe independently to their respective monitoring data through the OPC UA bridge",
     "Local timing-endpoint configuration and monitoring traverse the same GbE link; DAQ configuration path exposes recovery to SC",
     "SC publishes board readiness from current board-generated timing and recovery evidence",
     "Only the protocol architecture diagram is retained; no detailed variable inventory or optical timing/readout description",
