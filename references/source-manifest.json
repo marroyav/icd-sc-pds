@@ -7,7 +7,7 @@
     "DAQ CCM requests run-variable and local timing-endpoint configuration through the component integrated into the SC-provided external OPC UA server; Hermes receives configuration on its separate IPBus/UDP endpoint; it does not publish counters",
     "Configuration and control use request/response; all monitoring is published",
     "daphne-server publishes firmware counters, timing state and applied readout configuration through the OPC UA server to DAQ opmon; SC monitors voltages, temperatures, fans, readout link diagnostics including SFP I2C monitoring, service status and versions; SC and opmon subscribe independently to their respective monitoring data through the OPC UA bridge",
-    "Timing configuration and monitoring use two paths: GbE exposes the local controls defined by the daphne-os endpoint service, including reset and endpoint address, plus endpoint status and timing-SFP I2C status; DTS optical fibre carries the remaining timing configuration and monitoring such as alignment status. Endpoint reset precedes DTS configuration. Both DAQ and SC access these controls and GbE monitoring through OPC UA; configuration/control uses request/response and monitoring is published. Delivery of DTS readiness evidence to SC remains to be specified.",
+    "Timing configuration and monitoring use two paths: DTS defines endpoint controls and status; daphne-firmware contains the endpoint HDL and daphne-os supplies the protocols for register access. The endpoint service reads/controls registers locally, and OPC UA exposes that access to DAQ and SC. GbE carries local controls including reset and endpoint address, plus endpoint status and timing-SFP I2C status; DTS optical fibre carries the remaining timing configuration and monitoring such as alignment status. Endpoint reset precedes DTS configuration. Both DAQ and SC access these controls and GbE monitoring through OPC UA; configuration/control uses request/response and monitoring is published. Delivery of DTS readiness evidence to SC remains to be specified.",
     "SC publishes board readiness from current board-generated timing and recovery evidence",
     "Only the protocol architecture diagram is retained; no detailed variable inventory or optical transport/readout specification. The timing section identifies the split GbE/DTS configuration and monitoring paths.",
     "Use DUNE-DAQ/daphne-os for daphne-server, Protobuf schemas, endpoint recovery documentation and runtime services.",
@@ -160,6 +160,34 @@
       "file": "petalinux/meta-daphne/recipes-core/daphne-services/files/daphne-endpoint-init.py",
       "sha256": "54a74fab97b0e53700aa91c6f977ccd743c2a5caae5ca357dec0740627ff6340",
       "source_branch": "fix/server-v05-register-coverage"
+    },
+    {
+      "reference": "R8",
+      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
+      "revision": "1f10fc012985bed9013d83f87d5c25d2cdb5a960",
+      "file": "ip_repo/daphne_ip/rtl/timing/pdts_endpoint.vhd",
+      "sha256": "d9f1d996195f3c8098bfbf3232c322c31a7a323428fb84dce53b209ebd6bf770"
+    },
+    {
+      "reference": "R8",
+      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
+      "revision": "1f10fc012985bed9013d83f87d5c25d2cdb5a960",
+      "file": "ip_repo/daphne_ip/rtl/timing/pdts_ep_defs.vhd",
+      "sha256": "a0c3775d719c56d154203cb6410f74df15f277bb7d610d61d967dac15df93618"
+    },
+    {
+      "reference": "R8",
+      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
+      "revision": "1f10fc012985bed9013d83f87d5c25d2cdb5a960",
+      "file": "ip_repo/daphne_ip/rtl/timing/pdts_ep_ctrl.vhd",
+      "sha256": "04f49a3c63da68b7751b78d9c3a489759a707fd0d2cf93805a8823191b765ee7"
+    },
+    {
+      "reference": "R8",
+      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
+      "revision": "1f10fc012985bed9013d83f87d5c25d2cdb5a960",
+      "file": "ip_repo/daphne_ip/rtl/timing/pdts_ep_regfile.vhd",
+      "sha256": "8764fcabd7dc496f07de2d236ac1e9237d8adea5dc50953ffa62132f523c0221"
     }
   ],
   "revision": "0.2",
@@ -169,7 +197,8 @@
     "Ops arbitration: SC completes the handshake with Operations and publishes detector availability only after detector health and Ops authorization are confirmed. This allocation is proposed; handshake ownership remains to be agreed. No definite DAQ-to-Ops handshake is required by the revised text."
   ],
   "source_notes": [
-    "R2 specifies a dedicated 1 GbE SFP CCM link per LCM and cathode PoF power. The four-group responsibility assignment follows the author instruction of 2026-09-17. No implemented calibration/PoF native protocol or DPS connection is asserted."
+    "R2 specifies a dedicated 1 GbE SFP CCM link per LCM and cathode PoF power. The four-group responsibility assignment follows the author instruction of 2026-09-17. No implemented calibration/PoF native protocol or DPS connection is asserted.",
+    "R8 identifies DTS endpoint HDL in the local daphne-firmware source at 1f10fc012985bed9013d83f87d5c25d2cdb5a960. R4 identifies daphne-os protocols for register access. DTS owns endpoint definitions; the endpoint service implements local access. The interface release must record the applicable DTS revision and its local/OPC UA mapping. The references do not establish a qualified deployed release."
   ],
   "inventory": {
     "daphne": {

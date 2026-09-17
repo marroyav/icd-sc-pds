@@ -5,15 +5,18 @@ record covering its firmware, services, clients, schemas, OPC UA model and
 endpoint/port allocation. Contracts shall define authentication, timeouts,
 queue limits, publication cadence and reconnect behavior. Configuration/control
 uses request/response; monitoring is published.
+For timing endpoints, record the DTS definitions and protocol revision and
+their mapping to local access and OPC UA.
 
 \textbf{DAPHNE:} verify concurrent configuration and publication on the shared
-GbE link, HD/VD scales, subscriber reconnection and endpoint-service controls
-through OPC UA for DAQ and SC, including address configuration and acknowledged
-reset. Define the delivery of DTS readiness
+GbE link, HD/VD scales, subscriber reconnection and local endpoint controls
+against DTS definitions through OPC UA for DAQ and SC, including address
+configuration and acknowledged reset. Define the delivery of DTS readiness
 evidence to SC. Publication schemas and ports remain to be assigned.
 
 \textbf{Light Calibration Module:} verify configuration and sequence requests,
-command arbitration, published status, timing recovery and readiness,
+command arbitration, published status, compliance with DTS endpoint definitions,
+timing recovery and readiness,
 reconnection and inhibit acknowledgement.
 
 \textbf{PoF laser boxes:} verify optical-power commands, arbitration,

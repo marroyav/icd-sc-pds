@@ -97,17 +97,20 @@ stale or missing updates and obtain a current snapshot after reconnecting.
 \subsubsection{Timing-endpoint control, monitoring and recovery}
 \label{sec:timing-recovery}
 
-Timing configuration and monitoring use two paths. The GbE CCM interface shall
-expose the local controls defined by the endpoint service in \code{daphne-os},
-including reset and endpoint address [R4, R5], and publish endpoint status and
-timing-SFP I\textsuperscript{2}C status.
+DTS defines the endpoint controls and status. The endpoint HDL is in
+\code{daphne-firmware} [R8]; \code{daphne-os} provides the protocols for accessing
+its registers [R4]. The endpoint service reads and controls them locally;
+the OPC UA bridge shall expose this access to both DAQ and SC through GbE.
+
+Timing configuration and monitoring use two paths. GbE carries local controls,
+including endpoint reset and address configuration, and publishes endpoint
+status and timing-SFP I\textsuperscript{2}C status.
 The DTS optical fibre carries the remaining timing configuration and
 monitoring such as alignment status. Endpoint reset is required before the
 DTS configuration sequence.
 
-DAQ and SC shall both access these GbE controls and monitoring through the
-OPC UA bridge. Configuration and control use request/response; monitoring is published through
-OPC UA subscriptions.
+GbE configuration and control use request/response; monitoring is published
+through OPC UA subscriptions.
 
 A reset request shall identify its target and receive an execution response.
 The board shall publish reset assertion, release and the resulting endpoint
@@ -117,7 +120,7 @@ DAQ and SC commands shall be serialized by SC's control infrastructure.
 
 SC shall determine and publish \emph{board ready for data taking} from the
 agreed readiness conditions, including completed reset, restored clocks,
-endpoint readiness and valid synchronization [R4]. Reset release alone is
+endpoint readiness and valid synchronization [R8, R4]. Reset release alone is
 insufficient. The interface release shall define how SC receives readiness
 evidence carried by DTS. Missing or stale required publications shall withhold readiness.
 DAQ checks both board readiness and the detector availability published by SC
