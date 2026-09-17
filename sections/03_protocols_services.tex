@@ -54,7 +54,7 @@ identify each service host and endpoint.
 
 \subsubsection{Configuration exchanges}
 
-DAQ CCM requests run-variable and timing-endpoint configuration through the
+DAQ CCM requests run-variable configuration and timing-endpoint reset through the
 OPC UA bridge. The ZMQ client on the SC bridge server exchanges Protobuf
 messages over ZeroMQ and TCP using a DEALER client and the board's ROUTER
 endpoint [R3, R4].
@@ -94,24 +94,30 @@ through the OPC UA bridge. Publications shall carry source identity, time,
 sequence and validity. Subscribers shall detect
 stale or missing updates and obtain a current snapshot after reconnecting.
 
-\subsubsection{Timing-endpoint control and recovery over GbE}
+\subsubsection{Timing-endpoint reset, monitoring and recovery}
 \label{sec:timing-recovery}
 
-DAQ and SC shall both set and monitor timing-endpoint variables through the
-OPC UA bridge. Configuration, reset and recovery use request/response;
-monitoring is published over the board's GbE connection through OPC UA
-subscriptions.
+Timing configuration and monitoring use two paths. The GbE CCM link carries
+endpoint reset and publishes endpoint status and timing-SFP I\textsuperscript{2}C
+status. The DTS optical fibre carries the remaining timing configuration and
+monitoring such as alignment status. Endpoint reset is required before the
+DTS configuration sequence.
+
+DAQ and SC shall both access endpoint reset and GbE monitoring through the
+OPC UA bridge. Reset uses request/response; monitoring is published through
+OPC UA subscriptions.
 
 A reset request shall identify its target and receive an execution response.
 The board shall publish reset assertion, release and the resulting endpoint
 state so that both clients can acknowledge the same recovery operation.
-Recovery access shall remain available while timing is unavailable. Concurrent
+Reset access shall remain available while timing is unavailable. Concurrent
 DAQ and SC commands shall be serialized by SC's control infrastructure.
 
 SC shall determine and publish \emph{board ready for data taking} from the
 agreed readiness conditions, including completed reset, restored clocks,
 endpoint readiness and valid synchronization [R4]. Reset release alone is
-insufficient. Missing or stale required publications shall withhold readiness.
+insufficient. The interface release shall define how SC receives readiness
+evidence carried by DTS. Missing or stale required publications shall withhold readiness.
 DAQ checks both board readiness and the detector availability published by SC
 before resuming data taking.
 
@@ -141,14 +147,12 @@ The control interface shall expose protective inhibit actions.
 PDS shall specify the native control protocol, transport, ports, command acknowledgements,
 monitoring schema and compatible versions. These details remain open.
 
-\subsubsection{Timing-endpoint control and recovery over GbE}
+\subsubsection{Timing-endpoint reset, monitoring and recovery}
 
-LCMs use the same timing protocol as DAPHNE. The requirements in
-Section~\ref{sec:timing-recovery} apply to each LCM over its 1\,GbE CCM link,
-through the LCM service and OPC UA adapter: both DAQ and SC set and monitor
-timing-endpoint variables through OPC UA, with published reset/recovery
-acknowledgement and endpoint state, and command arbitration. Recovery shall
-remain available during a timing outage.
+LCMs use the same timing protocol and split configuration/monitoring paths as
+DAPHNE (Section~\ref{sec:timing-recovery}). Both DAQ and SC access endpoint reset
+and GbE monitoring through the LCM service and OPC UA adapter. The same reset
+acknowledgement, command arbitration and access during timing outages apply.
 SC shall publish LCM readiness from fresh timing and recovery evidence;
 DAQ consumes it before calibration or data taking.
 
