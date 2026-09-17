@@ -1,0 +1,59 @@
+\section*{References and source status}
+\addcontentsline{toc}{section}{References and source status}
+
+\begingroup\small
+\begin{description}[leftmargin=3em,style=nextline,itemsep=0.2em,parsep=0pt]
+\item[R1 --- DAQ--PDS physical-interface baseline.]
+EDMS 2088726; \href{https://github.com/marroyav/daphne-icd/tree/26214716ce5ab19f3ec68bd2a6370552c48bd650}{\code{daphne-icd}, main snapshot \code{2621471}}.
+The CCM physical paragraph is copied from \code{sections/04_interfaces.tex}.
+This copy retains the source's 1\,GbE SFP wording.
+
+\item[R2 --- Proposed DAQ--PDS revision 8.]
+\href{https://github.com/marroyav/daphne-icd/tree/6c0b24542f9b2504037aa895250d1441ee209fd2}{\code{daphne-icd}, proposed-v8 snapshot \code{6c0b245}}.
+Sources for the format, FD-VD channel/board totals, membrane/cathode populations
+and integrated OPC UA configuration architecture. Proposed revision;
+Hermes separation is made explicit in the present draft following the author.
+
+\item[R3 --- DAQ DAPHNE protocol client and publication example.]
+\href{https://github.com/DUNE-DAQ/daphnemodules/tree/edf75a0c5f37cb6d1ef889723359e23e746ffe2b}{\code{DUNE-DAQ/daphnemodules}, \code{edf75a0}}:
+\code{src/DaphneV3Interface.cpp}, the DAPHNE Protobuf schemas and
+\code{plugins/DaphneV3ControllerModule.cpp}. Used to identify the DEALER client,
+configuration requests and the distinction between board reads and opmon
+publication. This source predates the proposed integration into OPC UA.
+
+\item[R4 --- Board-side DAPHNE implementation.]
+\href{https://github.com/ecristal/daphneZMQ/tree/aa2942a58d62e19a49cdfbf0b382ed118fcef9a5}{\code{ecristal/daphneZMQ}, \code{aa2942a}}:
+\code{srcs/server_controller/router_server.cpp},
+\code{srcs/protobuf/daphneV3_high_level_confs.proto} and \code{README.md}.
+Source evidence for ROUTER framing, envelope version 2, request dispatch and
+chunked replies. The cited snapshot is not a claim about every deployed board.
+
+\item[R5 --- Board image service endpoints and lifecycle.]
+\href{https://github.com/DUNE-DAQ/daphne-firmware/tree/ae2c7be986ba4930968a2821afc641d5f52591a4/petalinux/meta-daphne/recipes-core/daphne-services/files}{\code{DUNE-DAQ/daphne-firmware}, \code{ae2c7be}}:
+\code{daphne.service} and \code{hermes.service}.
+Source for reference TCP port 40001 and the coordinated runtime dependencies.
+
+\item[R6 --- Hermes UDP/IPBus implementation.]
+\href{https://github.com/DUNE-DAQ/hermesmodules/tree/887d5fc06b85d97ebb654f6a73baa87d8078fa3f}{\code{DUNE-DAQ/hermesmodules}, \code{887d5fc}}:
+\code{soc/src/hermes_udp_srv.cxx} and the Hermes controller.
+Source for the separate UDP 50001 service and local hardware bridge.
+
+\item[R7 --- Opmon publication API.]
+\href{https://github.com/DUNE-DAQ/opmonlib/tree/2609ae7ed89d188186de5c998fce633ff501f404}{\code{DUNE-DAQ/opmonlib}, \code{2609ae7}},
+README accessed 17 September 2026. Describes the publication interface and
+output-backend selection. The deployed DAQ release and its selected backend
+remain to be pinned for the new architecture.
+
+\item[R8 --- Protocol definitions.]
+\href{https://reference.opcfoundation.org/specs/OPC-10000-6/7.1}{OPC Foundation, OPC UA Part 6, UA Connection Protocol};
+\href{https://libzmq.readthedocs.io/en/latest/zmq_socket.html}{ZeroMQ socket reference}.
+Accessed 17 September 2026. The deployed profiles and library versions shall
+be recorded by the respective service releases.
+
+\item[R9 --- Timing documents referenced by DAQ--PDS.]
+\href{https://edms.cern.ch/document/2580777}{EDMS 2580777}, DTS Endpoint
+Integration Guide, and \href{https://edms.cern.ch/document/2395364}{EDMS 2395364 v2},
+endpoint firmware interface. Used here by reference through DAQ--PDS;
+the separate optical specifications are not reproduced in this CCM draft.
+\end{description}
+\endgroup

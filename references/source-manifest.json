@@ -1,0 +1,121 @@
+{
+  "prepared": "2026-09-17",
+  "scope": "Physical layer and protocols only",
+  "author_design_decisions": [
+    "One board CCM Ethernet connection; copy physical wording from daphne-icd",
+    "FD-VD: 1344 channels / 32 channels per board = 42 boards",
+    "DAQ configuration integrated into external OPC UA server",
+    "Hermes remains a separate IPBus/UDP service",
+    "Do not prescribe opmon as SC ingress; no variables in this draft"
+  ],
+  "files": [
+    {
+      "reference": "R2",
+      "source": "https://github.com/marroyav/daphne-icd",
+      "revision": "6c0b24542f9b2504037aa895250d1441ee209fd2",
+      "file": "cernatlasnote.cls",
+      "sha256": "00f27b8bd311c3433ebf00bad4da772bc19efa9c761e3acbc892f662da3e41a8"
+    },
+    {
+      "reference": "R2",
+      "source": "https://github.com/marroyav/daphne-icd",
+      "revision": "6c0b24542f9b2504037aa895250d1441ee209fd2",
+      "file": "images/logosolo.png",
+      "sha256": "ba6f7b86f5ed2f938a8f506101ba373086e5d724a55c988960317ee3caff7ce0"
+    },
+    {
+      "reference": "R2",
+      "source": "https://github.com/marroyav/daphne-icd",
+      "revision": "6c0b24542f9b2504037aa895250d1441ee209fd2",
+      "file": "sections/03_systems_overview.tex",
+      "sha256": "0a998f0049341f55eaf3b6d4f179dc7ee664cd70cfc9b6bae15eef83e173d7cc"
+    },
+    {
+      "reference": "R2",
+      "source": "https://github.com/marroyav/daphne-icd",
+      "revision": "6c0b24542f9b2504037aa895250d1441ee209fd2",
+      "file": "sections/04_interfaces.tex",
+      "sha256": "7e9dc6b7dac64be3f28f72917310a1ce3c6419b3e6b517cd843868add6435f78"
+    },
+    {
+      "reference": "R1",
+      "source": "https://github.com/marroyav/daphne-icd",
+      "revision": "26214716ce5ab19f3ec68bd2a6370552c48bd650",
+      "file": "sections/04_interfaces.tex",
+      "sha256": "00490534047ab7a5edcc189163b09ec87a2288d55e8e57fde328f45e8b9ee7d1"
+    },
+    {
+      "reference": "R3",
+      "source": "https://github.com/DUNE-DAQ/daphnemodules",
+      "revision": "edf75a0c5f37cb6d1ef889723359e23e746ffe2b",
+      "file": "src/DaphneV3Interface.cpp",
+      "sha256": "7b6871b7b94004b396a3d8b876753a70e28319519597fe8ee30eda13ed3c0378"
+    },
+    {
+      "reference": "R3",
+      "source": "https://github.com/DUNE-DAQ/daphnemodules",
+      "revision": "edf75a0c5f37cb6d1ef889723359e23e746ffe2b",
+      "file": "plugins/DaphneV3ControllerModule.cpp",
+      "sha256": "6e79e78e41952867d8075fce94df093afa1dbbb389f11e48e8c2359706abab2b"
+    },
+    {
+      "reference": "R4",
+      "source": "https://github.com/ecristal/daphneZMQ",
+      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
+      "file": "srcs/server_controller/router_server.cpp",
+      "sha256": "a3d3d2966a892f1e55c9e8f5b03d9660a2a7ea21d765023255b08e3f750ecf94"
+    },
+    {
+      "reference": "R4",
+      "source": "https://github.com/ecristal/daphneZMQ",
+      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
+      "file": "srcs/protobuf/daphneV3_high_level_confs.proto",
+      "sha256": "51cc0bd5a2171ad43249b364d385de89dfca1a6ed4f11d345c0636489f7074c0"
+    },
+    {
+      "reference": "R4",
+      "source": "https://github.com/ecristal/daphneZMQ",
+      "revision": "aa2942a58d62e19a49cdfbf0b382ed118fcef9a5",
+      "file": "README.md",
+      "sha256": "cdb063235131f6390e4efc21e564cbbc8cbab5d8f3a197e00f1b639c33e9086e"
+    },
+    {
+      "reference": "R5",
+      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
+      "revision": "ae2c7be986ba4930968a2821afc641d5f52591a4",
+      "file": "petalinux/meta-daphne/recipes-core/daphne-services/files/daphne.service",
+      "sha256": "82bc6b0f764778ff7c1b8dace829d793c2f55231464f0069dd0d2b1e7f949356"
+    },
+    {
+      "reference": "R5",
+      "source": "https://github.com/DUNE-DAQ/daphne-firmware",
+      "revision": "ae2c7be986ba4930968a2821afc641d5f52591a4",
+      "file": "petalinux/meta-daphne/recipes-core/daphne-services/files/hermes.service",
+      "sha256": "e44e85133463eee13158e819c9eccb74dc4ac7ae481378967391135a87c89788"
+    },
+    {
+      "reference": "R6",
+      "source": "https://github.com/DUNE-DAQ/hermesmodules",
+      "revision": "887d5fc06b85d97ebb654f6a73baa87d8078fa3f",
+      "file": "soc/src/hermes_udp_srv.cxx",
+      "sha256": "6d83bd3f8b84dbdebbdf79c75b39a986731be0b1a8d5db9655229f3455a511c4"
+    }
+  ],
+  "online_references": [
+    {
+      "reference": "R7",
+      "url": "https://github.com/DUNE-DAQ/opmonlib/tree/2609ae7ed89d188186de5c998fce633ff501f404",
+      "accessed": "2026-09-17"
+    },
+    {
+      "reference": "R8",
+      "url": "https://reference.opcfoundation.org/specs/OPC-10000-6/7.1",
+      "accessed": "2026-09-17"
+    },
+    {
+      "reference": "R8",
+      "url": "https://libzmq.readthedocs.io/en/latest/zmq_socket.html",
+      "accessed": "2026-09-17"
+    }
+  ]
+}
